@@ -1,0 +1,20 @@
+extends layout
+
+block content
+    div.container
+        div(class="col-sm-6 col-sm-offset-3")
+            h1
+                span(class="fa fa-sign-in") Sign Up
+            if message
+                div(class="alert alert-danger")= message
+            form(action="/signup", method="post")
+                div.form-group
+                    label Email:
+                    input(type="text", class="form-control", name="email")
+                div.form-group
+                    label Password:
+                    input(type="password", class="form-control", name="password")
+                button(type="submit",class="btn btn-warning btn-lg") Sign Up
+                hr
+                p Already have an account?
+                    a(href="/login")  Login
