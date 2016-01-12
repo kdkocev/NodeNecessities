@@ -1,16 +1,22 @@
+/*jslint white: true */
+
+'use strict'
+
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
+//var favicon = require('serve-favicon');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var session = require('express-session');
+var login_strategies = require('./config/login-strategies');
+var config = require('./config/config');
 
 var app = express();
 
-if(process.env.NODE_ENV=='test'){
+if (process.env.NODE_ENV === 'test') {
   mongoose.connect(process.env.TEST_DB);
 } else {
   mongoose.connect(require('./config/database').url); // connect to our database
@@ -24,17 +30,19 @@ app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-if(process.env.NODE_ENV!='test'){
+if (process.env.NODE_ENV !== 'test') {
   app.use(logger('dev'));
 }
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser(config.cookie_secret));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: require('./config/config').session_secret })); // session secret
+app.use(session({ secret: config.session_secret, resave:false, saveUninitialized:false })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
+
+app.use(login_strategies.check_remember_me);
 
 // Routes
 require('./routes/index')(app, passport);
@@ -69,6 +77,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

@@ -2,6 +2,8 @@ var LocalStrategy    = require('passport-local').Strategy;
 
 // load up the user model
 var User = require('../models/User');
+var jwt = require('jsonwebtoken');
+var jwt_secret = require('./config.js').jwt_secret;
 
 module.exports = function(passport) {
 
@@ -39,20 +41,18 @@ module.exports = function(passport) {
         // asynchronous
         process.nextTick(function() {
             User.findOne({ 'local.email' :  email }, function(err, user) {
-                // if there are any errors, return the error
                 if (err)
                     return done(err);
 
-                // if no user is found, return the message
                 if (!user)
                     return done(null, false);
 
                 if (!user.validPassword(password))
                     return done(null, false);
 
-                // all is well, return user
-                else
+                else{
                     return done(null, user);
+                }
             });
         });
 

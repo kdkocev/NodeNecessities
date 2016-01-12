@@ -4,3 +4,10 @@ block content
     div User logged in is #{user.local.email}
     div You can always
         a(href="/logout")  Logout
+
+    script.
+        var socket = io.connect();
+        socket.emit('handshake',"#{user.token}");
+        socket.on('handshake',function(data){
+            console.log(data);
+        });

@@ -8,9 +8,12 @@ var Browser = require("zombie");
 // A database for testing only
 var db_name = 'nodenecessities_testdb';
 
-// Starting the host process
+// Set testing environment
 process.env.NODE_ENV = 'test';
 process.env.TEST_DB = 'mongodb://localhost/'+db_name;
+// changing port so project can be tested without stopping the server
+process.env.PORT = 2999;
+// Start the host process
 var app = require('../bin/www');
 
 // Cleaning the database we just used
@@ -128,6 +131,10 @@ describe('Tests',function(){
         browser.assert.success();
         assert.equal(browser.location.pathname, "/signup");
       });
+    });
+
+    describe.skip('Token', function(){
+
     });
   });
 });

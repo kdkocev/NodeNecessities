@@ -9,7 +9,9 @@ var userSchema = mongoose.Schema({
         name         : String,
         email        : String,
         password     : String
-    }
+    },
+    token : String,
+    rooms : Object
 })
 
 // generating a hash
