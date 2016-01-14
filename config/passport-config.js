@@ -47,12 +47,13 @@ module.exports = function(passport) {
                 if (!user)
                     return done(null, false);
 
-                if (!user.validPassword(password))
-                    return done(null, false);
-
-                else{
-                    return done(null, user);
-                }
+                user.validPassword(password, function(is_valid){
+                    if (!is_valid) {
+                        return done(null, false);
+                    } else {
+                        return done(null, user);
+                    }
+                });
             });
         });
 

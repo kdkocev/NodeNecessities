@@ -16,7 +16,13 @@ module.exports = function(passport){
       failureRedirect : '/login' // redirect back to the signup page if there is an error
     }),
     showProfile: function(req, res, next){
-      res.render('profile',{user:req.user});
+      var user = {
+        local: {email: req.user.local.email}
+      };
+      req.user.getToken(function(token){
+        user.token = token;
+        res.render('profile',{user:user});
+      });
     },
     signup: function(req, res) {
       res.render('signup.jade');

@@ -6,6 +6,7 @@ block content
         a(href="/logout")  Logout
 
     script.
+        console.log("#{user.token}");
         var socket = io.connect();
         socket.emit('handshake',"#{user.token}");
         socket.on('handshake',function(data){

@@ -15,10 +15,9 @@ module.exports = function(server){
             console.log(err);
           else{
             io.emit('handshake',{success:true});
-            
           }
         });
-        console.log(socket.clients);
+        //console.log(io.sockets.connected);
       })
   });
 }
