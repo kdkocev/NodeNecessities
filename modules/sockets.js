@@ -1,6 +1,4 @@
 var User = require('../models/User');
-var jwt = require('jsonwebtoken');
-var jwt_secret = require('../config/config').jwt_secret;
 
 module.exports = function (server) {
   var io = require('socket.io')(server);
@@ -13,8 +11,7 @@ module.exports = function (server) {
     });
 
     socket.on('handshake', function (token) {
-      // TODO: move this function elswhere
-      jwt.verify(token, jwt_secret, function (err, decoded) {
+      User.verifyToken(token, function (err, decoded) {
         if (err)
           console.log(err);
         else {
@@ -24,18 +21,27 @@ module.exports = function (server) {
 
             // save user
             socket.user = user;
+            // TODO: modify
+            io.to(socket.id).emit('handshake', {
+              user: {
+                email: user.local.email
+              },
+              success: true
+            });
           });
 
-          io.to(socket.id).emit('handshake', {
-            success: true
-          });
         }
       });
     })
 
     // TODO: send the message to a recepient
-    socket.on('message', function (data) {
-      console.log(data);
+    socket.on('message', function (text) {
+      var message = {
+        message: text,
+        sender: socket.user.local.email
+      }
+      console.log(message);
+      socket.broadcast.emit('message', message);
     })
   });
 

@@ -4,9 +4,23 @@ html
     title= title
     script(src="/socket.io/socket.io.js")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js")
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/main.css')
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
 
   body
+    div.header_menu
+        ul
+            li
+                a(href='/') Home
+            li
+                a(href='/login') Login
+            li
+                a(href='/logout') Logout
+            li
+                a(href='/lobby') Lobby
+            if user.isAuthenticated
+            li
+                a(href='/profile') #{user.local.email}
+
     block content

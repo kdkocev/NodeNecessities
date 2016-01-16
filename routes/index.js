@@ -1,28 +1,40 @@
-module.exports = function (app, passport) {
-  'use strict';
+'use strict';
+
+var urls = require('./urls.js');
+var router = require('express').Router();
+
+module.exports = function (passport) {
 
   var users = require("./users")(passport);
+  var lobby = require("./lobby");
 
   /* GET home page. */
-  app.get('/', function(req, res, next) {
-    res.render('index', { title: 'Express' });
+  router.get(urls.home, function (req, res, next) {
+    res.render('index', {
+      title: 'Express'
+    });
   });
 
-  app.get( '/profile', isLoggedIn, users.showProfile);
+  router.get(urls.profile, isLoggedIn, users.showProfile);
 
-  app.get( '/login', users.login);
-  app.post('/login', users.checkRememberMe, users.loginPost);
+  router.route(urls.login)
+    .get(users.login)
+    .post(users.checkRememberMe, users.loginPost);
 
-  app.get( '/signup', users.signup);
-  app.post('/signup', users.signupPost);
+  router.route(urls.signup)
+    .get(users.signup)
+    .post(users.signupPost);
 
-  app.get('/logout',users.logout);
+  router.get(urls.logout, users.logout);
+
+  router.get(urls.lobby, isLoggedIn, lobby.main);
+
+  return router;
 };
 
 // ensure that a user is logged in
 function isLoggedIn(req, res, next) {
-  'use strict';
-  if (req.isAuthenticated()){
+  if (req.isAuthenticated()) {
     return next();
   }
   res.redirect('/login');

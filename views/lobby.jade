@@ -1,0 +1,13 @@
+extends layout
+    
+block content
+    div.chat-container
+        div.chat-window
+
+        div Send a message, perhaps?
+            form
+                input(id="message-input")
+                button Send!
+    script.
+        var token = "#{user.token}";
+    script(src="/js/sockets.js")

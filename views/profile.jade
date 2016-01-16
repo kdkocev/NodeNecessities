@@ -5,35 +5,6 @@ block content
     div You can always
         a(href="/logout")  Logout
 
-    div Or send a message, perhaps?
-        form
-            input(id="messageInput")
-            button(id="sendButton") Send!
-
-    script.
-        console.log("#{user.token}");
-        var socket = io.connect();
-        socket.on('connected',function(){
-            socket.emit('handshake',"#{user.token}");
-        });
-        socket.on('handshake',function(data){
-            console.log(data);
-        });
-        socket.on('message', function(data){
-            console.log(data);
-            alert(data);
-        });
-
-        socket.on("disconnect", function(data){
-            console.log("some shit happened");
-        });
-
-        $("form").submit(function(e){
-            e.preventDefault();
-            send($("#messageInput").val());
-            $("#messageInput").val("");
-        });
-
-        function send(text){
-            socket.emit('message', text);
-        }
+    ul
+        each val in urls
+            li= val
