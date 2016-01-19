@@ -2,7 +2,7 @@ module.exports = {
     home: '/',
     login: '/login',
     logout: '/logout',
-    signup: '/sign_in',
+    signup: '/signup',
     profile: '/profile',
     lobby: '/lobby'
 };

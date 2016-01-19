@@ -9,6 +9,9 @@ block content
                 div(class="alert alert-danger")= message
             form(action="/signup", method="post")
                 div.form-group
+                    label Name:
+                    input(type="text", class="form-control", name="name")
+                div.form-group
                     label Email:
                     input(type="text", class="form-control", name="email")
                 div.form-group
