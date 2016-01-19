@@ -2,6 +2,7 @@
 
 var urls = require('./urls.js');
 var router = require('express').Router();
+var uploader = require('../modules/uploader.js');
 
 module.exports = function (passport) {
 
@@ -15,7 +16,9 @@ module.exports = function (passport) {
     });
   });
 
-  router.get(urls.profile, isLoggedIn, users.showProfile);
+  router.route(urls.profile)
+    .get(isLoggedIn, users.showProfile)
+    .post(isLoggedIn, uploader, users.changeProfile);
 
   router.route(urls.login)
     .get(users.login)

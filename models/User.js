@@ -21,6 +21,9 @@ var userSchema = mongoose.Schema({
             select: false
         }
     },
+    avatar: {
+        type: String
+    },
     token: {
         type: String,
         select: false
@@ -89,24 +92,11 @@ userSchema.methods.generateToken = function () {
     this.save();
     return this.token;
 
-    function randomString(len) {
-        var buf = [],
-            chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-            charlen = chars.length;
-
-        for (var i = 0; i < len; ++i) {
-            buf.push(chars[getRandomInt(0, charlen - 1)]);
-        }
-
-        return buf.join('');
-    };
-
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
 }
 
-
+userSchema.statics.randomString = function (len, cb) {
+    cb(randomString(len));
+}
 
 userSchema.statics.verifyToken = function (token, cb) {
     jwt.verify(token, jwt_secret, function (err, decoded) {
@@ -114,6 +104,25 @@ userSchema.statics.verifyToken = function (token, cb) {
     });
 }
 
+userSchema.methods.setAvatar = function (avatarName) {
+    this.avatar = avatarName;
+    this.save();
+}
 
+function randomString(len) {
+    var buf = [],
+        chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+        charlen = chars.length;
+
+    for (var i = 0; i < len; ++i) {
+        buf.push(chars[getRandomInt(0, charlen - 1)]);
+    }
+
+    return buf.join('');
+};
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 module.exports = mongoose.model('User', userSchema);

@@ -68,7 +68,8 @@ module.exports = function (passport) {
     showProfile: function (req, res, next) {
       var user = {
         local: {
-          email: req.user.local.email
+          email: req.user.local.email,
+          avatar: req.user.avatar
         }
       };
       res.render('profile', locals({
@@ -86,6 +87,9 @@ module.exports = function (passport) {
       res.clearCookie('remember_me');
       req.logout();
       res.redirect('/');
+    },
+    changeProfile: function (req, res) {
+      res.redirect('back');
     }
   }
 };

@@ -41,6 +41,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser(config.cookie_secret));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 app.use(session({
   secret: config.session_secret,

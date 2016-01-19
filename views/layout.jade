@@ -19,8 +19,15 @@ html
                 a(href='/logout') Logout
             li
                 a(href='/lobby') Lobby
-            if user.isAuthenticated
             li
-                a(href='/profile') #{user.local.email}
+                a(href='/profile') Profile
+            if user
+                li
+                    a(href='/profile') #{user.local.email}
+
+        ul
+            each val in urls
+                li #{val}
+
 
     block content
