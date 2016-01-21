@@ -4,5 +4,12 @@ module.exports = {
     logout: '/logout',
     signup: '/signup',
     profile: '/profile',
-    lobby: '/lobby'
+    lobby: '/lobby',
+    confirmLogin: '/confirm-login',
+
+    uploads_url: '/',
+    avatars_url: '/avatars',
+    styles_url: '/stylesheets',
+    js_url: '/js'
+
 };

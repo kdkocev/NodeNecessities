@@ -65,16 +65,9 @@ module.exports = function (passport) {
       successRedirect: urls.profile,
       failureRedirect: urls.login
     }),
+    // Only shows MY profile for now
     showProfile: function (req, res, next) {
-      var user = {
-        local: {
-          email: req.user.local.email,
-          avatar: req.user.avatar
-        }
-      };
-      res.render('profile', locals({
-        user: user
-      }));
+      res.render('profile');
     },
     signup: function (req, res) {
       res.render('signup');
@@ -84,12 +77,26 @@ module.exports = function (passport) {
       failureRedirect: urls.signup
     }),
     logout: function (req, res) {
+      req.app.locals.user = null;
       res.clearCookie('remember_me');
       req.logout();
-      res.redirect('/');
+      res.redirect(urls.home);
     },
     changeProfile: function (req, res) {
-      res.redirect('back');
+      if (req.body.name) {
+        console.log("Setting name to: " + req.body.name);
+        req.user.setName(req.body.name, res.redirect('back'));
+      } else {
+        res.redirect('back');
+      }
+    },
+    confirmLogin: function (req, res) {
+      if (!req.user) res.send({});
+      res.json({
+        name: req.user.local.name,
+        email: req.user.local.email,
+        avatar: req.app.locals.urls.avatars_url + "/" + req.user.avatar
+      })
     }
   }
 };
@@ -101,11 +108,15 @@ module.exports = function (passport) {
  * and include parameters that are global for all templates
  */
 
+// Deprecated because .json has app.locals variables in every template
 function locals(obj) {
   var globals = {
-    urls: urls
+    // Possible things that i want to pass to every view
+    // title: "Node Necessities"
   }
-  return extend(globals, obj);
+  if (typeof obj === typeof Object)
+    return extend(globals, obj);
+  return globals;
 }
 
 /**

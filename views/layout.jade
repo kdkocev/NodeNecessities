@@ -4,30 +4,37 @@ html
     title= title
     script(src="/socket.io/socket.io.js")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js")
-    link(rel='stylesheet', href='/stylesheets/main.css')
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
+    link(rel='stylesheet', href='#{urls.styles_url}/main.css')
 
-  body
+  body(ng-app="nodenecessities")
     div.header_menu
         ul
             li
-                a(href='/') Home
+                a(href='#{urls.home}') Home
             li
-                a(href='/login') Login
+                a(href='#{urls.login}') Login
             li
-                a(href='/logout') Logout
+                a(href='#{urls.logout}') Logout
             li
-                a(href='/lobby') Lobby
-            li
-                a(href='/profile') Profile
-            if user
+                a(href='#{urls.lobby}') Lobby
+            if isAuthenticated
                 li
-                    a(href='/profile') #{user.local.email}
+                    a(href='#{urls.profile}') #{user.local.email}
 
-        ul
-            each val in urls
-                li #{val}
+    div.content
+        block content
 
 
-    block content
+    script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js")
+    script(src="/js/angularjs/app.js")
+    script(src="/js/angularjs/factories/messages.js")
+    script(src="/js/angularjs/controllers/messages.js")
+    script(src="/js/angularjs/directives/messages.js")
+    script(src="/js/angularjs/directives/validation.js")
+    script(src="/js/main.js")
+
+    if user
+        script.
+           var user = {name: "#{user.local.name}"};

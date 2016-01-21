@@ -28,6 +28,14 @@ module.exports = function (server) {
               },
               success: true
             });
+
+            io.to(socket.id).emit("message", {
+              message: "Welcome to the channel",
+              sender: {
+                name: socket.user.local.name,
+                avatar: socket.user.avatar
+              }
+            })
           });
 
         }

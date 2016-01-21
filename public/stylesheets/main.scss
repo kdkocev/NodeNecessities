@@ -3,18 +3,39 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #222;
+  &:visited{
+    color: #222;
+  }
+  &:hover{
+    text-decoration: none;
+    color: #222;
+  }
+  &:focus{
+    text-decoration: none;
+    outline: none;
+  }
 }
 
 .header_menu{
-    
+    width:900px;
+    margin:auto;
+    border-bottom:1px solid silver;
+
     ul{
+        padding:0;
         list-style-type: none;
         li{
             float:left;
             margin-right: 20px;
             font-size:20px;
-
+            padding-bottom:5px;
+            &:hover{
+                -webkit-box-shadow: 0px 2px #000000;
+                   -moz-box-shadow: 0px 2px #000000;
+                        box-shadow: 0px 2px #000000;
+                color:#002;
+            }
         }
     }
 
@@ -25,12 +46,15 @@ a {
     }
 }
 
+.content{
+    width:900px;
+    margin:auto;
+    padding-top:30px;
+}
+
 .chat-container{
-    display:inline-block;
-    width:90%;
-    margin-left:5%;
     .chat-window{
-        height:600px;
+        height:400px;
 
         &:after{
             content:"";
@@ -72,4 +96,87 @@ a {
         height:50px;
         border-radius:0;
     }
+}
+
+.profile-page-avatar{
+    width: 400px;
+    max-height: 600px;
+    position: relative;
+
+    img{
+        width:100%;
+    }
+
+    div.image-cover{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height: 100%;
+        z-index:10;
+    }
+
+    div.image-background{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height: 100%;
+        opacity: 0;
+        background-color:#000;
+        z-index: 9;
+        -webkit-transition: all 1s ease;
+           -moz-transition: all 1s ease;
+            -ms-transition: all 1s ease;
+             -o-transition: all 1s ease;
+                transition: all 1s ease;
+    }
+
+    div.image-cover:hover > div.image-background{
+        opacity: 0.6;
+    }
+
+    div.image-cover:hover > div.change-image{
+        display:block;
+    }
+
+    input{
+        display:none;
+    }
+
+    .change-image{
+        width:50px;
+        height:50px;
+        background-color:silver;
+        position:absolute;
+        top:20px;
+        right:20px;
+        padding:10px;
+        font-size: 30px;
+        cursor:pointer;
+        display:none;
+        z-index:12;
+        &:hover{
+            display:block;
+        }
+    }
+}
+
+.validation-field{
+    border-radius:50%;
+    width:25px !important;
+    height:25px;
+    float:right;
+    margin-bottom:-30px;
+    margin-top:4px;
+    margin-right:5px;
+    padding:6px;
+}
+
+.valid-field{
+    background-color:green;
+}
+
+.invalid-field{
+    background-color:red;
 }
