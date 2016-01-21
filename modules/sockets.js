@@ -3,6 +3,7 @@ var urls = require('../routes/urls');
 
 module.exports = function (server) {
   var io = require('socket.io')(server);
+  var games = [];
 
   io.on("connection", function (socket) {
     io.to(socket.id).emit("connected");
@@ -31,9 +32,13 @@ module.exports = function (server) {
               },
               success: true
             });
-            var connectedUsers = getConnectedUsers();
-            socket.broadcast.emit('user:join', connectedUsers);
-            socket.emit('user:join', connectedUsers);
+            // Forgive me father, for I have sinned
+            // TODO: fix
+            setTimeout(function () {
+              var connectedUsers = getConnectedUsers();
+              socket.broadcast.emit('user:join', connectedUsers);
+              socket.emit('user:join', connectedUsers);
+            }, 1000);
           });
 
         }
@@ -49,19 +54,105 @@ module.exports = function (server) {
     })
 
     socket.on("user:inviteToGame", function (users) {
-      console.log(users);
+
       var clients = getUserClients({
         local: {
           email: users.receiver.email
         }
       });
-      console.log(clients);
+      User.randomString(10, function (str) {
+        var game = {
+          id: str,
+          sender: users.sender
+        };
+        games.push(game);
+        // TODO: make this in a function
+        for (client in clients) {
+          io.to(clients[client]).emit("user:invitedYouToGame", game);
+        }
+      });
+    });
+
+    socket.on('user:acceptGame', function (game) {
+      console.log("game accepted");
+      var exactGame = games.filter(function (x) {
+        return x.id === game.id;
+      })[0];
+      console.log(exactGame);
+
+      var users = [];
+      users.push(exactGame.sender.email);
+      users.push(socket.user.local.email);
+
+      User.startGame(exactGame.id, users, function () {
+
+        sendToUser(users[0], 'user:getInGame', game);
+        sendToUser(users[1], 'user:getInGame', game);
+      });
+
+
+      // remove game from queue of unaccepted games
+      games = games.filter(function (x) {
+        return x.id !== game.id;
+      });
+    });
+
+    socket.on('user:refuseGame', function (game) {
+      console.log("game refused");
+      games = games.filter(function (x) {
+        return x.id !== game.id;
+      });
+      // TODO: make this in a function
+      var clients = getUserClients({
+        local: {
+          email: game.sender.email
+        }
+      });
       for (client in clients) {
-        console.log(client);
-        io.to(clients[client]).emit("user:invitedYouToGame", users.sender);
+        io.to(clients[client]).emit("user:invitationRefused", game);
       }
     });
+
+    // Tests for the game
+    // Should be moved elswhere
+
+    socket.on('move', function (data) {
+      var command = {
+        speed: 10,
+        directionX: 0,
+        directionY: 0
+      };
+      console.log(data);
+      if (data.key === 38) {
+        command.directionY = -1;
+      }
+      if (data.key === 40) {
+        command.directionY = 1;
+      }
+      if (data.key == 37) {
+        command.directionX = -1;
+      }
+      if (data.key == 39) {
+        command.directionX = 1;
+      }
+      if (command.directionX == 0 && command.directionY == 0) return;
+      console.log(command);
+      socket.broadcast.emit("move", command);
+      socket.emit("move", command);
+    });
+
   });
+
+  function sendToUser(email, event, data) {
+    var clients = getUserClients({
+      local: {
+        email: email
+      }
+    });
+    for (client in clients) {
+      io.to(clients[client]).emit(event, data);
+    }
+  }
 
 
   // A functional filter for Objects. The object is passed as parameter
@@ -90,17 +181,15 @@ module.exports = function (server) {
   }
 
   function getConnectedUsers() {
-    try {
-      return unique(io.sockets.sockets.map(function (x) {
+    return unique(io.sockets.sockets.map(function (x) {
+      if (x.user) {
         return {
           name: x.user.local.name,
           email: x.user.local.email,
           avatar: urls.avatars_url + "/" + x.user.avatar
         };
-      }));
-    } catch (e) {
-      console.log(e)
-    };
+      }
+    }));
   }
 
   // The most elegant way to get the unique users
@@ -109,7 +198,7 @@ module.exports = function (server) {
       a = [];
     for (var i = 0, l = arr.length; i < l; ++i) {
       // Modified here with email
-      if (!u.hasOwnProperty(arr[i].email)) {
+      if (arr[i] && !u.hasOwnProperty(arr[i].email)) {
         a.push(arr[i]);
         // And here
         u[arr[i].email] = 1;
@@ -127,6 +216,10 @@ module.exports = function (server) {
 
   process.stdin.on('data', function (text) {
     util.inspect(text);
+
+    if (text.indexOf("get games") == 0) {
+      console.log(games);
+    }
 
     // send to <email> <message>
     // or

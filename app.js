@@ -64,6 +64,15 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(function (req, res, next) {
+  if (req.isAuthenticated() && res.locals.user.game.inGame && req.path !== app.locals.urls.gameMain) {
+    res.redirect(app.locals.urls.gameMain);
+  } else {
+    next();
+  }
+
+});
+
 // Routes
 // TODO: remove this argument
 app.use(require('./routes/index')(passport));

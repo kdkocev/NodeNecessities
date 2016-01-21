@@ -195,4 +195,9 @@ a {
       .participant-options-menu ul li:hover {
         background-color: silver; }
 
+canvas#game {
+  position: fixed;
+  left: 0;
+  top: 0; }
+
 /*# sourceMappingURL=main.css.map */

@@ -5,6 +5,7 @@ var router = require('express').Router();
 var uploader = require('../modules/uploader.js');
 
 var lobby = require("./lobby");
+var game = require("./game");
 
 // TODO: remove this argument
 module.exports = function (passport) {
@@ -36,6 +37,8 @@ module.exports = function (passport) {
   router.get(urls.lobby, isLoggedIn, lobby.main);
 
   router.get(urls.confirmLogin, users.confirmLogin);
+
+  router.get(urls.gameMain, isLoggedIn, game.main);
 
   return router;
 };

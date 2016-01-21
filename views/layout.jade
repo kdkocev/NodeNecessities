@@ -9,19 +9,20 @@ html
     link(rel='stylesheet', href='#{urls.styles_url}/main.css')
 
   body(ng-app="nodenecessities")
-    div.header_menu
-        ul
-            li
-                a(href='#{urls.home}') Home
-            li
-                a(href='#{urls.login}') Login
-            li
-                a(href='#{urls.logout}') Logout
-            li
-                a(href='#{urls.lobby}') Lobby
-            if isAuthenticated
+    block header_menu
+        div.header_menu
+            ul
                 li
-                    a(href='#{urls.profile}') #{user.local.email}
+                    a(href='#{urls.home}') Home
+                li
+                    a(href='#{urls.login}') Login
+                li
+                    a(href='#{urls.logout}') Logout
+                li
+                    a(href='#{urls.lobby}') Lobby
+                if isAuthenticated
+                    li
+                        a(href='#{urls.profile}') #{user.local.email}
 
     div.content
         block content
@@ -34,5 +35,6 @@ html
     script(src="/js/angularjs/directives/messages.js")
     script(src="/js/angularjs/directives/validation.js")
     script(src="/js/angularjs/directives/chat-participants.js")
+    script(src="/js/angularjs/directives/canvas.js")
 
     script(src="/js/main.js")

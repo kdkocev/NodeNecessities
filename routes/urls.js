@@ -6,6 +6,7 @@ module.exports = {
     profile: '/profile',
     lobby: '/lobby',
     confirmLogin: '/confirm-login',
+    gameMain: '/game',
 
     uploads_url: '/',
     avatars_url: '/avatars',

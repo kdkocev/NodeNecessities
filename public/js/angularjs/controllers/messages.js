@@ -48,8 +48,20 @@
         });
       })
 
-      socket.on('user:invitedYouToGame', function (user) {
-        confirm("User " + user.name + " has invited you to game. Accept?");
+      socket.on('user:invitedYouToGame', function (game) {
+        if (confirm("User " + game.sender.name + " has invited you to game. Accept?")) {
+          socket.emit('user:acceptGame', game);
+        } else {
+          socket.emit('user:refuseGame', game);
+        }
+      });
+
+      socket.on('user:invitationRefused', function (user) {
+        alert("User " + user.name + " refused your game invitation");
+      });
+
+      socket.on('user:getInGame', function (data) {
+        window.location = "/game";
       });
 
       $scope.uploadFile = function (files) {
@@ -82,6 +94,10 @@
         socket.emit("message", message);
         $scope.newMessage = "";
         return false;
+      }
+
+      $scope.move = function ($event) {
+        console.log($event);
       }
 
     });
