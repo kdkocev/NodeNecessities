@@ -109,6 +109,13 @@ userSchema.methods.setAvatar = function (avatarName) {
     this.save();
 }
 
+userSchema.methods.setName = function (name, cb) {
+    if (typeof name == 'string' && name.length > 3) {
+        this.local.name = name;
+        this.save(cb);
+    }
+}
+
 function randomString(len) {
     var buf = [],
         chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',

@@ -1,13 +1,24 @@
 extends layout
     
 block content
-    div.chat-container
-        div.chat-window
 
-        div Send a message, perhaps?
-            form
-                input(id="message-input")
-                button Send!
-    script.
-        var token = "#{user.token}";
-    script(src="/js/sockets.js")
+    div(ng-controller='chatController')
+        div.chat-container.col-sm-8
+            div.chat-window
+                div.chat-window-content
+                    div(ng-repeat='message in messages')
+                        message(data="message")
+
+            div.send-window Send a message as 
+                b {{user.name}}
+                form(ng-submit="sendMessage(chatForm)" name="chatForm")
+                    .form-group
+                        input.form-control(id="message-input" name="message" ng-model="newMessage" required)
+                        button.btn.btn-default(type="submit") Send!
+        div.participants.col-sm-4
+            div(ng-repeat="participant in participants")
+                chat-participant(data="participant")
+
+
+        script.
+            var token = "#{user.token}";

@@ -4,10 +4,13 @@ var urls = require('./urls.js');
 var router = require('express').Router();
 var uploader = require('../modules/uploader.js');
 
+var lobby = require("./lobby");
+
+// TODO: remove this argument
 module.exports = function (passport) {
 
+  // TODO: remove this argument
   var users = require("./users")(passport);
-  var lobby = require("./lobby");
 
   /* GET home page. */
   router.get(urls.home, function (req, res, next) {
@@ -32,6 +35,8 @@ module.exports = function (passport) {
 
   router.get(urls.lobby, isLoggedIn, lobby.main);
 
+  router.get(urls.confirmLogin, users.confirmLogin);
+
   return router;
 };
 
@@ -40,5 +45,5 @@ function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/login');
+  res.redirect(urls.home);
 }

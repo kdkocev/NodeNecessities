@@ -53,8 +53,19 @@ app.use(passport.session()); // persistent login sessions
 
 app.use(login_strategies.check_remember_me);
 
+
+app.use(function (req, res, next) {
+  if (req.isAuthenticated()) {
+    res.locals = {
+      user: req.user,
+      isAuthenticated: (req.user != null)
+    }
+  };
+  next();
+});
+
 // Routes
-//require('./routes/index')(app, passport);
+// TODO: remove this argument
 app.use(require('./routes/index')(passport));
 
 // catch 404 and forward to error handler
