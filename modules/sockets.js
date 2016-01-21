@@ -1,4 +1,5 @@
 var User = require('../models/User');
+var urls = require('../routes/urls');
 
 module.exports = function (server) {
   var io = require('socket.io')(server);
@@ -7,7 +8,9 @@ module.exports = function (server) {
     io.to(socket.id).emit("connected");
 
     socket.on('disconnect', function () {
-      console.log('User disconnected!');
+      var connectedUsers = getConnectedUsers();
+      socket.broadcast.emit('user:join', connectedUsers);
+      socket.emit('user:join', connectedUsers);
     });
 
     socket.on('handshake', function (token) {
@@ -28,14 +31,9 @@ module.exports = function (server) {
               },
               success: true
             });
-
-            io.to(socket.id).emit("message", {
-              message: "Welcome to the channel",
-              sender: {
-                name: socket.user.local.name,
-                avatar: socket.user.avatar
-              }
-            })
+            var connectedUsers = getConnectedUsers();
+            socket.broadcast.emit('user:join', connectedUsers);
+            socket.emit('user:join', connectedUsers);
           });
 
         }
@@ -43,13 +41,12 @@ module.exports = function (server) {
     })
 
     // TODO: send the message to a recepient
-    socket.on('message', function (text) {
-      var message = {
-        message: text,
-        sender: socket.user.local.email
-      }
+    socket.on('message', function (message) {
       console.log(message);
+      var date = new Date();
+      message.time = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
       socket.broadcast.emit('message', message);
+      socket.emit('message:sent', message.time);
     })
   });
 
@@ -79,11 +76,32 @@ module.exports = function (server) {
   }
 
   function getConnectedUsers() {
-    return io.sockets.sockets.map(function (x) {
-      return [
-        x.user.local.email, x.id
-      ];
-    });
+    try {
+      return unique(io.sockets.sockets.map(function (x) {
+        return {
+          name: x.user.local.name,
+          email: x.user.local.email,
+          avatar: urls.avatars_url + "/" + x.user.avatar
+        };
+      }));
+    } catch (e) {
+      console.log(e)
+    };
+  }
+
+  // The most elegant way to get the unique users
+  function unique(arr) {
+    var u = {},
+      a = [];
+    for (var i = 0, l = arr.length; i < l; ++i) {
+      // Modified here with email
+      if (!u.hasOwnProperty(arr[i].email)) {
+        a.push(arr[i]);
+        // And here
+        u[arr[i].email] = 1;
+      }
+    }
+    return a;
   }
 
 

@@ -4,7 +4,7 @@
   angular
     .module('nodenecessities')
     .directive("validation", function (socket, $rootScope, $compile) {
-      console.log("igraem");
+
       return {
         require: "^form",
         restrict: 'E',

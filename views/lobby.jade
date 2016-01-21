@@ -3,17 +3,22 @@ extends layout
 block content
 
     div(ng-controller='chatController')
-        div.chat-container
+        div.chat-container.col-sm-8
             div.chat-window
-                div(ng-repeat='message in messages')
-                    message(data="message")
+                div.chat-window-content
+                    div(ng-repeat='message in messages')
+                        message(data="message")
 
-            div Send a message as #{user.local.name}
-                form
-                    input(id="message-input")
-                    button Send!
+            div.send-window Send a message as 
+                b {{user.name}}
+                form(ng-submit="sendMessage(chatForm)" name="chatForm")
+                    .form-group
+                        input.form-control(id="message-input" name="message" ng-model="newMessage" required)
+                        button.btn.btn-default(type="submit") Send!
+        div.participants.col-sm-4
+            div(ng-repeat="participant in participants")
+                chat-participant(data="participant")
 
-        div.participants
 
         script.
             var token = "#{user.token}";

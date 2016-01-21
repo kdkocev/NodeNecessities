@@ -3,16 +3,18 @@
 
   angular
     .module('nodenecessities')
-    .controller('chatController', function chatController($scope, socket, $http) {
+    .controller('chatController', function chatController($scope, socket, $http, $timeout) {
+      var newMessages = [];
 
       $scope.messages = [];
+      $scope.participants = [];
 
       socket.on('connected', function () {
         socket.emit('handshake', window.token);
       });
 
       socket.on('handshake', function (data) {
-        // window.user = data.user;
+        console.log("Connected!");
       });
 
       socket.on("disconnect", function (data) {
@@ -20,17 +22,30 @@
       });
 
       socket.on('message', function (data) {
-        console.log(data);
         $scope.messages.push(data);
+        $timeout(function () {
+          $(".chat-window").scrollTop($(".chat-window-content").height())
+        });
       });
 
       socket.on('user:join', function (data) {
         console.log("User:join ", data);
+        $scope.participants = data;
       });
 
       socket.on('user:leave', function (data) {
         console.log("User:leave ", data);
       });
+
+      socket.on('message:sent', function (time) {
+        var message = newMessages.pop();
+        message.time = time;
+        $scope.messages.push(message);
+        // After the dom is updated - scroll down
+        $timeout(function () {
+          $(".chat-window").scrollTop($(".chat-window-content").height())
+        });
+      })
 
       $scope.uploadFile = function (files) {
         var fd = new FormData();
@@ -46,10 +61,23 @@
           transformRequest: angular.identity
         }).success(function (data) {
           $scope.user.avatar = data.avatar;
-        }).error(function (err) {
-
-        });
+        })
       };
+
+      $scope.sendMessage = function (htmlForm) {
+        var message = {
+          message: $scope.newMessage,
+          sender: {
+            id: $scope.user.id,
+            name: $scope.user.name,
+            avatar: $scope.user.avatar
+          }
+        };
+        newMessages.push(message);
+        socket.emit("message", message);
+        $scope.newMessage = "";
+        return false;
+      }
 
     });
 })();

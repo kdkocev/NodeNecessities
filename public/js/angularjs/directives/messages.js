@@ -8,11 +8,15 @@
       return {
         restrict: 'E',
         replace: true,
-        scope: {
-          message: '=data'
-        },
         templateUrl: '/js/angularjs/views/messages.html',
-        link: function (scope, element, attrs) {}
+        scope: {
+          message: "=data"
+        },
+        link: function (scope, element, attrs) {
+          if ($rootScope.user.id === scope.message.sender.id) {
+            scope.message.myMessage = true;
+          }
+        }
       }
     })
 })();
