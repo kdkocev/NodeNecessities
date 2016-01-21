@@ -6,4 +6,16 @@
         <b>{{ participant.name }}</b>
         <span>({{ participant.email }})</span>
     </div>
+    <div class="participant-settings-menu-icon glyphicon glyphicon-cog" ng-click="participantMenu=!participantMenu" ng-hide="participant.me">
+        <div ng-show="participantMenu" class="participant-options-menu">
+            <ul>
+                <li ng-click="inviteToGame(participant)">
+                    Invite to game
+                </li>
+                <li>
+                    Start private chat
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

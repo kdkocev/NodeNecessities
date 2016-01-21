@@ -8,4 +8,12 @@ app.run(function ($rootScope, $http, socket) {
       }
     });
 
+  $rootScope.inviteToGame = function (user) {
+    console.log(user);
+    socket.emit("user:inviteToGame", {
+      receiver: user,
+      sender: $rootScope.user
+    });
+  }
+
 });

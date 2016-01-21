@@ -40,7 +40,6 @@ module.exports = function (server) {
       });
     })
 
-    // TODO: send the message to a recepient
     socket.on('message', function (message) {
       console.log(message);
       var date = new Date();
@@ -48,7 +47,22 @@ module.exports = function (server) {
       socket.broadcast.emit('message', message);
       socket.emit('message:sent', message.time);
     })
+
+    socket.on("user:inviteToGame", function (users) {
+      console.log(users);
+      var clients = getUserClients({
+        local: {
+          email: users.receiver.email
+        }
+      });
+      console.log(clients);
+      for (client in clients) {
+        console.log(client);
+        io.to(clients[client]).emit("user:invitedYouToGame", users.sender);
+      }
+    });
   });
+
 
   // A functional filter for Objects. The object is passed as parameter
   Object.filter = function (obj, predicate) {

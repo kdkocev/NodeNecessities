@@ -8,6 +8,7 @@
 
       $scope.messages = [];
       $scope.participants = [];
+      $scope.participantMenu = false;
 
       socket.on('connected', function () {
         socket.emit('handshake', window.token);
@@ -46,6 +47,10 @@
           $(".chat-window").scrollTop($(".chat-window-content").height())
         });
       })
+
+      socket.on('user:invitedYouToGame', function (user) {
+        confirm("User " + user.name + " has invited you to game. Accept?");
+      });
 
       $scope.uploadFile = function (files) {
         var fd = new FormData();

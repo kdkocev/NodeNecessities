@@ -238,3 +238,25 @@ a {
         }
     }
 }
+
+.participant-settings-menu-icon{
+    cursor:pointer;
+}
+
+.participant-options-menu{
+    position:absolute;
+    ul{
+        border:1px solid #222;
+        list-style-type: none;
+        padding:0;
+        background-color:white;
+        li{
+            white-space: nowrap;
+            padding:5px;
+            cursor:pointer;
+            &:hover{
+                background-color:silver;
+            }
+        }
+    }
+}

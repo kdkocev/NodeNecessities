@@ -47,13 +47,16 @@ module.exports = function (passport) {
       }
     },
     confirmLogin: function (req, res) {
-      if (!req.user) res.send({});
-      res.json({
-        id: req.user.id,
-        name: req.user.local.name,
-        email: req.user.local.email,
-        avatar: req.app.locals.urls.avatars_url + "/" + req.user.avatar
-      })
+      if (!req.user) {
+        res.send({});
+      } else {
+        res.send({
+          id: req.user.id,
+          name: req.user.local.name,
+          email: req.user.local.email,
+          avatar: req.app.locals.urls.avatars_url + "/" + req.user.avatar
+        })
+      }
     }
   }
 };

@@ -178,4 +178,21 @@ a {
     .chat-participant .participant-name b {
       display: block; }
 
+.participant-settings-menu-icon {
+  cursor: pointer; }
+
+.participant-options-menu {
+  position: absolute; }
+  .participant-options-menu ul {
+    border: 1px solid #222;
+    list-style-type: none;
+    padding: 0;
+    background-color: white; }
+    .participant-options-menu ul li {
+      white-space: nowrap;
+      padding: 5px;
+      cursor: pointer; }
+      .participant-options-menu ul li:hover {
+        background-color: silver; }
+
 /*# sourceMappingURL=main.css.map */
