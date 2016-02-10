@@ -1,6 +1,6 @@
 <div class="message" ng-class="{right: message.myMessage==true}">
     <div class="sender-avatar">
-        <img src="{{ message.sender.avatar }}">
+        <img ng-src="{{message.sender.avatar}}">
     </div>
     <div class="text">
         <div class="sender-name">{{ message.sender.name }}</div>

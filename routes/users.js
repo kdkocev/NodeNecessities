@@ -8,7 +8,7 @@ var urls = require('./urls');
 module.exports = function (passport) {
   return {
     login: function (req, res, next) {
-      res.render('login', function (err, html) {
+      res.render('login', (err, html) => {
         if (!err)
           res.write(html);
         res.end();

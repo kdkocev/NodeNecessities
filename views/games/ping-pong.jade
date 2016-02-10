@@ -1,0 +1,10 @@
+extends ../game
+
+block content
+
+    div(ng-controller="socketAuthController")
+        canvas(id="ping-pong" ng-controller="pingPongController")
+    script.
+        var token = "#{token}";
+    script(src="/js/games/controllers/ping-pong.controller.js")
+    script(src="/js/games/directives/ping-pong.js")

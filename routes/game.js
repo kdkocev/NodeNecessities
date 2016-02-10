@@ -4,6 +4,10 @@ var router = express.Router();
 
 module.exports = {
   main: function (req, res, next) {
-    res.render("game");
+    req.user.getToken(function (token) {
+      res.render("games/ping-pong", {
+        token: token
+      });
+    });
   }
 }

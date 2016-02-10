@@ -14,7 +14,7 @@ module.exports = function (passport) {
   var users = require("./users")(passport);
 
   /* GET home page. */
-  router.get(urls.home, function (req, res, next) {
+  router.get(urls.home, (req, res, next) => {
     res.render('index', {
       title: 'Express'
     });

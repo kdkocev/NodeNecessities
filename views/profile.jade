@@ -1,24 +1,33 @@
 extends layout
     
 block content
-    div(ng-controller="chatController")
-        form(method="POST" enctype="multipart/form-data" name="profileEditForm" action="#")
-            .col-sm-6
-                .form-group
-                    .profile-page-avatar
-                        img(ng-src="{{user.avatar}}")
-                        .image-cover
-                            .image-background
-                            .change-image.glyphicon.glyphicon-pencil
-                        input(type="file" name="avatar" onchange="angular.element(this).scope().uploadFile(this.files)")
-            .col-sm-6
-                .form-group
-                    label(for="email-input") Email:
-                    validation(name="email")
-                    input.form-control(type="email" name="email" ng-model="user.email" ng-maxlength="30" id="email-input")
-                .form-group
-                    label(for="name-input") Name:
-                    validation(name="name")
-                    input.form-control(type="text" name="name" ng-minlength="4" ng-maxlength="15" ng-model="user.name" id="name-input" required)
-                .form-group
-                    button.btn.btn-default(type="submit" ng-disabled="profileEditForm.$invalid || profileEditForm.$pristine") Save
+    div.container
+        div(ng-controller="profileController")
+            form(method="POST" enctype="multipart/form-data" name="profileEditForm" action="#")
+                .col-sm-6
+                    .form-group
+                        .profile-page-avatar
+                            img(ng-src="{{user.avatar}}")
+                            .image-cover
+                                .image-background
+                                .change-image.glyphicon.glyphicon-pencil
+                                input(type="file" name="avatar" ng-model="nodenecessities" onchange="angular.element(this).scope().uploadFile(this.files)")
+
+                .col-sm-6
+                    .form-group
+                        label(for="email-input") Email:
+                        validation(name="email")
+                        input.form-control(type="email" name="email" ng-model="user.email" ng-maxlength="30" id="email-input")
+                    .form-group
+                        label(for="name-input") Name:
+                        validation(name="name")
+                        input.form-control(type="text" name="name" ng-minlength="4" ng-maxlength="15" ng-model="user.name" id="name-input" required)
+                    .form-group
+                        button.btn.btn-default(type="submit" ng-disabled="profileEditForm.$invalid || profileEditForm.$pristine") Save
+        
+    script(src="/js/angularjs/app.js")
+    script(src="/js/angularjs/factories/socket.js")
+    script(src="/js/angularjs/controllers/socket-auth.controller.js")    
+    script(src="/js/angularjs/controllers/profile.controller.js")
+
+    script(src="/js/angularjs/directives/canvas.js")

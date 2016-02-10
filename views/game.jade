@@ -2,7 +2,10 @@ extends layout
 
 block header_menu
 
+block aditional_scripts
+    script(src="/js/angularjs/app.js")
+    script(src="/js/angularjs/factories/socket.js")
+    script(src="/js/angularjs/controllers/socket-auth.controller.js")
+
 block content
-    div(ng-controller="chatController")
-        div
-            canvas(id="game")
+        

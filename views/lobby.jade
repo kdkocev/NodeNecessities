@@ -1,24 +1,34 @@
 extends layout
     
 block content
+    div.container
+        div(ng-controller='chatController')
+            div.chat-container.col-sm-8
+                div.chat-window
+                    div.chat-window-content
+                        div(ng-repeat='message in messages')
+                            message(data="message")
 
-    div(ng-controller='chatController')
-        div.chat-container.col-sm-8
-            div.chat-window
-                div.chat-window-content
-                    div(ng-repeat='message in messages')
-                        message(data="message")
+                div.send-window Send a message as 
+                    b {{user.name}}
+                    form(ng-submit="sendMessage(chatForm)" name="chatForm")
+                        .form-group
+                            input.form-control(id="message-input" name="message" ng-model="newMessage" required)
+                            button.btn.btn-default(type="submit") Send!
+            div.participants.col-sm-4
+                div(ng-repeat="participant in participants")
+                    chat-participant(data="participant")
 
-            div.send-window Send a message as 
-                b {{user.name}}
-                form(ng-submit="sendMessage(chatForm)" name="chatForm")
-                    .form-group
-                        input.form-control(id="message-input" name="message" ng-model="newMessage" required)
-                        button.btn.btn-default(type="submit") Send!
-        div.participants.col-sm-4
-            div(ng-repeat="participant in participants")
-                chat-participant(data="participant")
+        div(ng-controller="socketAuthController")
 
+            script.
+                var token = "#{user.token}";
 
-        script.
-            var token = "#{user.token}";
+    script(src="/js/angularjs/app.js")
+    script(src="/js/angularjs/factories/socket.js")
+    script(src="/js/angularjs/controllers/socket-auth.controller.js")    
+    script(src="/js/angularjs/controllers/chat.controller.js")
+
+    script(src="/js/angularjs/directives/validation.js")
+    script(src="/js/angularjs/directives/messages.js")
+    script(src="/js/angularjs/directives/chat-participants.js")

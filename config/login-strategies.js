@@ -8,23 +8,26 @@ module.exports = {
       User.findOne({
         'local.email': req.body.email
       }, function (err, user) {
-        user.validPassword(req.body.password, function (is_valid) {
-          if (err || !is_valid) {
-            next();
-          } else {
-            var randomstr = user.generateToken();
-            var token = jwt.sign(randomstr, jwt_secret);
-            res.cookie('remember_me', token, {
-              path: '/',
-              httpOnly: true,
-              maxAge: 7 * 24 * 60 * 60 * 1000 // a week
-            });
-            user.token = randomstr;
-            user.save(function (err) {
+        console.log("login remember me ", arguments)
+        if (err || !user) next();
+        else
+          user.validPassword(req.body.password, function (is_valid) {
+            if (err || !is_valid) {
               next();
-            });
-          }
-        });
+            } else {
+              var randomstr = user.generateToken();
+              var token = jwt.sign(randomstr, jwt_secret);
+              res.cookie('remember_me', token, {
+                path: '/',
+                httpOnly: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000 // a week
+              });
+              user.token = randomstr;
+              user.save(function (err) {
+                next();
+              });
+            }
+          });
       });
     } else {
       next();
