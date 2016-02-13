@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === 'test') {
 
 require('./config/passport-config')(passport);
 
+app.locals.title = "NodeNecessities";
 app.locals.urls = require('./routes/urls');
 app.locals.config = require('./config/config');
 
@@ -62,6 +63,18 @@ app.use(function (req, res, next) {
     }
   };
   next();
+});
+
+app.use(function (req, res, next) {
+  next();
+  return;
+  // TODO: fix
+  if (req.isAuthenticated() && res.locals.user.game.inGame && req.path !== app.locals.urls.gameMain && req.path !== app.locals.urls.logout) {
+    res.redirect(app.locals.urls.gameMain);
+  } else {
+    next();
+  }
+
 });
 
 // Routes

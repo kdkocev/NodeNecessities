@@ -32,6 +32,15 @@ var userSchema = mongoose.Schema({
         type: String,
         select: false
     },
+    game: {
+        inGame: {
+            type: Boolean,
+        },
+        id: {
+            type: String,
+        }
+    },
+    // not used for now
     rooms: Object
 })
 
@@ -114,6 +123,31 @@ userSchema.methods.setName = function (name, cb) {
         this.local.name = name;
         this.save(cb);
     }
+}
+
+userSchema.statics.startGame = function (gameid, users, cb) {
+    console.log(users);
+    mongoose.model('User', userSchema).find({
+        $or: [{
+            "local.email": users[0]
+        }, {
+            "local.email": users[1]
+        }]
+    }, function (err, users) {
+        if (err) return false;
+        else {
+            console.log(users);
+            var game = {
+                inGame: true,
+                id: gameid
+            };
+            users[0].game = game;
+            users[1].game = game;
+            users[0].save().then(function () {
+                users[1].save(cb);
+            });
+        }
+    });
 }
 
 function randomString(len) {

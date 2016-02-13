@@ -18,9 +18,9 @@ a {
 }
 
 .header_menu{
-    width:900px;
     margin:auto;
     border-bottom:1px solid silver;
+    margin-bottom: 30px;
 
     ul{
         padding:0;
@@ -47,7 +47,6 @@ a {
 }
 
 .content{
-    width:900px;
     margin:auto;
     padding-top:30px;
 }
@@ -124,12 +123,13 @@ a {
 }
 
 .profile-page-avatar{
-    width: 400px;
-    max-height: 600px;
+    width: 100%;
     position: relative;
 
     img{
         width:100%;
+        min-height: 100px;
+        background-color: grey;
     }
 
     div.image-cover{
@@ -237,4 +237,34 @@ a {
             display:block;
         }
     }
+}
+
+.participant-settings-menu-icon{
+    cursor:pointer;
+}
+
+.participant-options-menu{
+    position:absolute;
+    ul{
+        border:1px solid #222;
+        list-style-type: none;
+        padding:0;
+        background-color:white;
+        li{
+            white-space: nowrap;
+            padding:5px;
+            cursor:pointer;
+            &:hover{
+                background-color:silver;
+            }
+        }
+    }
+}
+
+canvas#ping-pong{
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
 }

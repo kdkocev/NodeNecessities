@@ -4,35 +4,30 @@ html
     title= title
     script(src="/socket.io/socket.io.js")
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js")
+    script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js")
+    block aditional_scripts
+    
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
     link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
     link(rel='stylesheet', href='#{urls.styles_url}/main.css')
 
   body(ng-app="nodenecessities")
-    div.header_menu
-        ul
-            li
-                a(href='#{urls.home}') Home
-            li
-                a(href='#{urls.login}') Login
-            li
-                a(href='#{urls.logout}') Logout
-            li
-                a(href='#{urls.lobby}') Lobby
-            if isAuthenticated
-                li
-                    a(href='#{urls.profile}') #{user.local.email}
+    block header_menu
+        div.container
+            div.header_menu
+                ul
+                    li
+                        a(href='#{urls.home}') Home
+                    li
+                        a(href='#{urls.login}') Login
+                    li
+                        a(href='#{urls.logout}') Logout
+                    li
+                        a(href='#{urls.lobby}') Lobby
+                    if isAuthenticated
+                        li
+                            a(href='#{urls.profile}') #{user.local.email}
 
-    div.content
-        block content
-
-
-    script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js")
-    script(src="/js/angularjs/app.js")
-    script(src="/js/angularjs/factories/messages.js")
-    script(src="/js/angularjs/controllers/messages.js")
-    script(src="/js/angularjs/directives/messages.js")
-    script(src="/js/angularjs/directives/validation.js")
-    script(src="/js/angularjs/directives/chat-participants.js")
+    block content
 
     script(src="/js/main.js")
