@@ -1,5 +1,8 @@
+'use strict';
 var User = require('../models/User');
 var urls = require('../routes/urls');
+
+let games = [];
 
 module.exports = function (server) {
   var io = require('socket.io')(server);
@@ -11,7 +14,7 @@ module.exports = function (server) {
           email: email
         }
       });
-      for (client in clients) {
+      for (let client in clients) {
         io.to(clients[client]).emit(event, data);
       }
     }
@@ -37,13 +40,9 @@ module.exports = function (server) {
               success: true
             });
 
-            console.log(user);
-            console.log("I HAVE DISABLED GAMING!!!!!!!!!!!!!!!!!!!")
-            if (user.game && user.game.id && false) {
-              require("./sockets/ping-pong.sockets.js")(io, socket);
-            } else {
-              require("./sockets/chat.sockets.js")(io, socket);
-            }
+            require("./sockets/ping-pong.sockets.js")(io, socket, games);
+            require("./sockets/chat.sockets.js")(io, socket);
+
 
           });
         }
@@ -58,7 +57,7 @@ module.exports = function (server) {
           email: email
         }
       });
-      for (client in clients) {
+      for (let client in clients) {
         io.to(clients[client]).emit(event, data);
       }
     }

@@ -5,8 +5,6 @@ module.exports = function (io, socket) {
 
   io.gameInvitations = [];
 
-  console.log("chat.socket.js");
-
   broadcastUserJoin();
 
   socket.on('disconnect', () => {
@@ -42,9 +40,7 @@ module.exports = function (io, socket) {
   });
 
   socket.on('user:acceptGame', game => {
-    console.log("game accepted");
     var exactGame = io.gameInvitations.filter(x => x.id === game.id)[0];
-    console.log(exactGame);
 
     var users = [];
     users.push(exactGame.sender.email);
@@ -62,7 +58,6 @@ module.exports = function (io, socket) {
   });
 
   socket.on('user:refuseGame', function (game) {
-    console.log("game refused");
     io.gameInvitations = io.gameInvitations.filter(function (x) {
       return x.id !== game.id;
     });
@@ -80,7 +75,6 @@ module.exports = function (io, socket) {
 
   function broadcastUserJoin() {
     var connectedUsers = io.customTools.getConnectedUsers();
-    console.log("Connected users", connectedUsers);
     socket.broadcast.emit('user:join', connectedUsers);
     socket.emit('user:join', connectedUsers);
   }
