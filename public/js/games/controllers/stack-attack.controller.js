@@ -6,7 +6,7 @@
     .controller('stackAttackController', function ($scope, socket) {
 
       socket.on("game:update", function (data) {
-        console.log("game:update");
+        //console.log("game:update");
         // $scope.syncData(data);
       })
 

@@ -10,27 +10,27 @@ block content
     script(src="/js/webgl-fmi.js")
     script(id="vshader" type="x-shader/x-vertex").
         attribute vec2 aXY;
-        // attribute vec3 aRGB;
+        attribute vec2 aXYpos;
+        attribute vec3 aRGB;
 
-        // varying vec3 vRGB;
+        varying vec3 vRGB;
 
-        // uniform float uTime;
-
-        uniform mat4 uRotationMatrix;
+        vec2 add(vec2 v1,vec2 v2) {
+            return vec2(v1.x + v2.x, v1.y + v2.y);
+        }
 
         void main() {
-
-            vec4 pos = (uRotationMatrix * vec4(aXY, 0, 1));
-            gl_Position = pos;
-            // vRGB = aRGB;
+            gl_Position = vec4(add(aXY,aXYpos), 0, 1);
+            vRGB = aRGB;
         }
+
     script(id="fshader" type="x-shader/x-fragment").
         precision mediump float;
-        // varying vec3 vRGB;
+
+        varying vec3 vRGB;
 
         void main() {
-            // gl_FragColor = vec4(vRGB,1);
-            gl_FragColor = vec4(0, 0, 0, 1);
+            gl_FragColor = vec4(vRGB, 1);
         }
     script(src="/js/games/controllers/stack-attack.controller.js")
     script(src="/js/games/directives/stack-attack.directive.js")
