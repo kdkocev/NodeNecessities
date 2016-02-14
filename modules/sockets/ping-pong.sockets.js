@@ -7,8 +7,6 @@ module.exports = function (io, socket, games) {
     return;
   }
 
-  console.log("User that is in gaming: ", socket.user)
-
   if (typeof games[socket.user.game.id] === 'undefined') {
     games[socket.user.game.id] = {
       id: socket.user.game.id,
@@ -43,7 +41,6 @@ module.exports = function (io, socket, games) {
       for (let i in users) {
         game.playersEmails.push(users[i].local.email)
         game.players[k++].email = users[i].local.email;
-        io.customTools.sendToUser(users[i].local.email, 'game:start', game);
       }
       gameLoop(game);
     });

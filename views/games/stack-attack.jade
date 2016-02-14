@@ -1,0 +1,36 @@
+extends ../game
+
+block content
+
+    div(ng-controller="socketAuthController")
+        canvas(id="stack-attack" ng-controller="stackAttackController")
+        div(id="fps-meter") fps: {{fps}}
+    script.
+        var token = "#{token}";
+    script(src="/js/webgl-fmi.js")
+    script(id="vshader" type="x-shader/x-vertex").
+        attribute vec2 aXY;
+        // attribute vec3 aRGB;
+
+        // varying vec3 vRGB;
+
+        // uniform float uTime;
+
+        uniform mat4 uRotationMatrix;
+
+        void main() {
+
+            vec4 pos = (uRotationMatrix * vec4(aXY, 0, 1));
+            gl_Position = pos;
+            // vRGB = aRGB;
+        }
+    script(id="fshader" type="x-shader/x-fragment").
+        precision mediump float;
+        // varying vec3 vRGB;
+
+        void main() {
+            // gl_FragColor = vec4(vRGB,1);
+            gl_FragColor = vec4(0, 0, 0, 1);
+        }
+    script(src="/js/games/controllers/stack-attack.controller.js")
+    script(src="/js/games/directives/stack-attack.directive.js")

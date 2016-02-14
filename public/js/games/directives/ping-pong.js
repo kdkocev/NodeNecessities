@@ -15,6 +15,9 @@
             var ctx = c.getContext("2d");
             c.width = 800;
             c.height = 400;
+            scope.fps = 0;
+            scope.framesShown = 0;
+            scope.seconds = 0;;
 
             scope.game = {};
 
@@ -41,6 +44,7 @@
 
               ctx.fillRect(scope.game.players[0].x * 800 - 20, scope.game.players[0].y * 400, 40, 0.4 * 400);
               ctx.fillRect(scope.game.players[1].x * 800 - 20, scope.game.players[1].y * 400, 40, 0.4 * 400);
+              scope.framesShown++;
               cb();
             }
 
@@ -71,9 +75,7 @@
               }
               scope.updateGame(scope.updateCanvas, function () {
                 if (!scope.game.winner) {
-                  setTimeout(() => {
-                    scope.gameLoop();
-                  }, 50);
+                  scope.gameLoop();
                 } else {
                   alert(scope.game.winner.email + " WON THE GAME!!");
                   window.location = "/lobby";
@@ -90,6 +92,11 @@
             scope.userMoved = function (data) {
               scope.game.players = data.players;
             }
+
+            setInterval(() => {
+              scope.fps = scope.framesShown / scope.seconds;
+              scope.seconds++;
+            }, 1000);
 
           }
         }

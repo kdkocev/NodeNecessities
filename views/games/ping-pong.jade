@@ -4,6 +4,7 @@ block content
 
     div(ng-controller="socketAuthController")
         canvas(id="ping-pong" ng-controller="pingPongController")
+        div(id="fps-meter") {{fps}}
     script.
         var token = "#{token}";
     script(src="/js/games/controllers/ping-pong.controller.js")
