@@ -64,9 +64,13 @@
                 falling: true,
                 positionLimit: {
                   minX: -1,
-                  maxX: 1
+                  maxX: 1,
                   // overwritten
-                  //minY: window.floor.height
+                  minY: window.floor.height
+                },
+                setColumn: function (column) {
+                  this.position.column = column;
+                  this.position.x = -1 + column * (1 / 6);
                 }
               };
             }
@@ -88,17 +92,90 @@
                 b: 255
               },
               height: 1 / 14 - 1,
-              name: "floor"
+              name: "floor",
+              falling: false
+            }
+
+            function getCrane(x, direction) {
+              return {
+                name: "crane",
+                falling: false,
+                position: {
+                  x: x,
+                  y: 1 - 1 / 14
+                },
+                size: {
+                  x: 1 / 6,
+                  y: 2 / 7
+                },
+                data: [0, 0, 0, 1, 1, 0, 1, 1],
+                drawType: gl.TRIANGLE_STRIP,
+                color: {
+                  r: 255,
+                  g: 0,
+                  b: 0
+                },
+                direction: direction,
+                positionLimit: {
+                  minX: -1.2,
+                  maxX: 1.2
+                },
+                tile: {},
+                dropPlace: {
+                  minX: -2,
+                  maxX: -2,
+                  column: -1
+                },
+                attachTile: function (tile) {
+                  this.startMoving();
+                  this.tile = tile;
+                  this.tile.falling = false;
+                  this.tile.position.y = 1;
+                  this.setDropPlace(Math.floor(random(0, 12)));
+                  this.tile.setColumn(this.dropPlace.column)
+
+                  this.tile.taken = true;
+
+                  console.log(this.tile.position, this.dropPlace)
+                },
+                detachTile: function () {
+                  this.tile.falling = true;
+                  this.tile = {};
+                },
+                setDropPlace: function (column) {
+                  this.dropPlace.column = column;
+                  this.dropPlace.minX = -1 + column * (1 / 6);
+                  this.dropPlace.maxX = -1 + (column + 1) * (1 / 6);
+                },
+                startMoving: function () {
+                  this.direction *= -1;
+                  this.position.x = parseFloat(this.position.x.toFixed(1));
+                }
+              }
             }
 
             window.objects = [];
-            //for (var i = 0; i < 10; i++) {
-            //objects.push(getTile((Math.floor(random(0, 12)) / 12), random(0, 1), [random(0, 255), random(0, 255), random(0, 255)]))
-            //}
+
+            var tiles = [];
             for (var i = 0; i < 15; i++) {
-              objects.push(getTile(Math.floor(random(0, 12)), random(0, 1), [random(50, 255), random(50, 255), random(50, 255)]));
+              var tile = getTile(Math.floor(random(0, 12)), random(0, 1), [random(50, 255), random(50, 255), random(50, 255)]);
+              tiles.push(tile);
+              objects.push(tile);
+            }
+
+            var cranes = [
+              getCrane(-1.2, -1),
+              getCrane(1.2, 1),
+              getCrane(-1.2, -1)
+            ]
+            for (var i in cranes) {
+              objects.push(cranes[i])
             }
             objects.push(floor);
+
+            setTimeout(function () {
+              cranes[0].attachTile(tiles[0]);
+            }, 3000);
 
             var data = [];
 
@@ -145,9 +222,13 @@
             window.floorLevels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             var offset = 0;
             for (var i in objects) {
-              if (objects[i].name !== "tile") continue;
-              fall(objects[i]);
-              setLimitations(objects[i]);
+              if (objects[i].name === "tile") {
+                fall(objects[i]);
+                setLimitations(objects[i]);
+              }
+              if (objects[i].name === "crane") {
+                craneMove(objects[i]);
+              }
               gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
               gl.vertexAttrib3f(aRGB, objects[i].color.r / 255, objects[i].color.g / 255, objects[i].color.b / 255);
               gl.drawArrays(objects[i].drawType, offset, objects[i].data.length / 2)
@@ -162,14 +243,29 @@
 
             if (!object.falling) return;
 
-            if (object.position.y > object.positionLimit.y) {
+            if (object.position.y > object.positionLimit.minY) {
               object.position.y -= speed;
             }
           }
 
           function setLimitations(object) {
-            object.positionLimit.y = parseFloat((floorLevels[object.position.column] * object.size.y).toFixed(3)) + floor.height;
+            if (!object.falling) return;
+            object.positionLimit.minY = parseFloat((floorLevels[object.position.column] * object.size.y).toFixed(3)) + floor.height;
             floorLevels[object.position.column]++;
+            if (object.taken) {
+              console.log(object, floorLevels);
+              object.taken = false;
+            }
+          }
+
+          function craneMove(object) {
+            var speed = 0.01;
+            if (object.position.x <= object.positionLimit.maxX && object.position.x >= object.positionLimit.minX) {
+              object.position.x += speed * object.direction;
+              if (object.tile.position && object.position.x > object.dropPlace.minX && object.position.x < object.dropPlace.maxX) {
+                object.detachTile();
+              }
+            }
           }
 
           start();
