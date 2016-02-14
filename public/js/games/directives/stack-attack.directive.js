@@ -37,7 +37,7 @@
             window.aRGB = gl.getAttribLocation(glprog, "aRGB");
             // window.uRotationMatrix = gl.getUniformLocation(glprog, "uRotationMatrix");
 
-            function getTile(column, y, color) {
+            function getTile(column, color) {
 
               // x > 0 , x < 12
               // 
@@ -47,7 +47,7 @@
                 position: {
                   column: column,
                   x: -1 + column * (1 / 6),
-                  y: y,
+                  y: 2,
                 },
                 size: {
                   x: 1 / 6,
@@ -61,7 +61,7 @@
                   b: color[2]
                 },
                 name: "tile",
-                falling: true,
+                falling: false,
                 positionLimit: {
                   minX: -1,
                   maxX: 1,
@@ -71,7 +71,9 @@
                 setColumn: function (column) {
                   this.position.column = column;
                   this.position.x = -1 + column * (1 / 6);
-                }
+                },
+                taken: false,
+                notInGame: true
               };
             }
 
@@ -133,6 +135,7 @@
                   this.tile.position.y = 1;
                   this.setDropPlace(Math.floor(random(0, 12)));
                   this.tile.setColumn(this.dropPlace.column)
+                  this.tile.notInGame = false;
 
                   this.tile.taken = true;
 
@@ -157,8 +160,8 @@
             window.objects = [];
 
             var tiles = [];
-            for (var i = 0; i < 15; i++) {
-              var tile = getTile(Math.floor(random(0, 12)), random(0, 1), [random(50, 255), random(50, 255), random(50, 255)]);
+            for (var i = 0; i < 60; i++) {
+              var tile = getTile(0, [random(50, 255), random(50, 255), random(50, 255)]);
               tiles.push(tile);
               objects.push(tile);
             }
@@ -173,8 +176,16 @@
             }
             objects.push(floor);
 
-            setTimeout(function () {
-              cranes[0].attachTile(tiles[0]);
+            // Cranes animation
+            window.craneNumber = 0;
+            setInterval(function () {
+              for (var i = 0; i < tiles.length; i++) {
+                if (!tiles[i].taken && tiles[i].notInGame) {
+                  cranes[craneNumber++].attachTile(tiles[i]);
+                  break;
+                }
+              }
+              if (craneNumber > 2) craneNumber = 0;
             }, 3000);
 
             var data = [];
