@@ -9,6 +9,7 @@
         replace: false,
         scope: true,
         link: function (scope, element, attrs) {
+          scope.score = 0;
           $("canvas#stack-attack").attr("width", $(window).width() - 5);
           $("canvas#stack-attack").attr("height", $(window).height() - 5);
 
@@ -35,13 +36,8 @@
             var aXY = gl.getAttribLocation(glprog, "aXY");
             window.aXYpos = gl.getAttribLocation(glprog, "aXYpos");
             window.aRGB = gl.getAttribLocation(glprog, "aRGB");
-            // window.uRotationMatrix = gl.getUniformLocation(glprog, "uRotationMatrix");
 
             function getTile(column, color) {
-
-              // x > 0 , x < 12
-              // 
-
               // var tile
               return {
                 position: {
@@ -73,7 +69,15 @@
                   this.position.x = -1 + column * (1 / 6);
                 },
                 taken: false,
-                notInGame: true
+                notInGame: true,
+                reset: function () {
+                  this.taken = false;
+                  this.notInGame = true;
+                  this.position.column = -1;
+                  this.position.x = 0;
+                  this.position.y = 1;
+                  this.falling = false;
+                }
               };
             }
 
@@ -132,16 +136,17 @@
                   this.startMoving();
                   this.tile = tile;
                   this.tile.falling = false;
-                  this.tile.position.y = 1;
-                  this.setDropPlace(Math.floor(random(0, 12)));
+                  this.tile.position.y = 1 - 1 / 7;
+                  this.setDropPlace(this.checkDropPlace(Math.floor(random(0, 12))));
                   this.tile.setColumn(this.dropPlace.column)
+                  this.tile.position.x = this.position.x;
                   this.tile.notInGame = false;
 
                   this.tile.taken = true;
 
-                  console.log(this.tile.position, this.dropPlace)
                 },
                 detachTile: function () {
+                  this.tile.setColumn(this.dropPlace.column)
                   this.tile.falling = true;
                   this.tile = {};
                 },
@@ -153,6 +158,15 @@
                 startMoving: function () {
                   this.direction *= -1;
                   this.position.x = parseFloat(this.position.x.toFixed(1));
+                },
+                checkDropPlace: function (column) {
+                  // Protects against endless cycle
+                  var c = 0;
+                  while (window.floorLevels[column] > 4 && c < 40) {
+                    column = Math.floor(random(0, 12));
+                    c++;
+                  }
+                  return column;
                 }
               }
             }
@@ -186,7 +200,7 @@
                 }
               }
               if (craneNumber > 2) craneNumber = 0;
-            }, 3000);
+            }, 1000);
 
             var data = [];
 
@@ -212,34 +226,30 @@
           // Constant animations at every fps rate
           var then = 0;
 
+
           function drawFrame(now) {
 
             now *= 0.001;
             var deltaTime = now - then;
             then = now;
 
-            //rotation += (rotationSpeed * deltaTime);
-
             gl.clear(gl.COLOR_BUFFER_BIT);
-
-            //gl.uniformMatrix4fv(uRotationMatrix, false, zRotateMatrix(rotation));
-
-            // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            // gl.drawArrays(gl.TRIANGLE_STRIP, 4, 4);
-
-
-
-
             window.floorLevels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            sortObj();
+            setObjLimitations();
+
             var offset = 0;
             for (var i in objects) {
+
               if (objects[i].name === "tile") {
                 fall(objects[i]);
-                setLimitations(objects[i]);
               }
               if (objects[i].name === "crane") {
                 craneMove(objects[i]);
               }
+
+              checkLevelComplete();
+
               gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
               gl.vertexAttrib3f(aRGB, objects[i].color.r / 255, objects[i].color.g / 255, objects[i].color.b / 255);
               gl.drawArrays(objects[i].drawType, offset, objects[i].data.length / 2)
@@ -250,7 +260,7 @@
           }
 
           function fall(object) {
-            var speed = 0.01;
+            var speed = 0.02;
 
             if (!object.falling) return;
 
@@ -263,18 +273,57 @@
             if (!object.falling) return;
             object.positionLimit.minY = parseFloat((floorLevels[object.position.column] * object.size.y).toFixed(3)) + floor.height;
             floorLevels[object.position.column]++;
-            if (object.taken) {
-              console.log(object, floorLevels);
-              object.taken = false;
+          }
+
+          function setObjLimitations() {
+            for (var i in objects) {
+              if (!objects[i].falling || objects[i].name !== "tile") continue;
+              objects[i].positionLimit.minY = parseFloat((floorLevels[objects[i].position.column] * objects[i].size.y).toFixed(3)) + floor.height;
+              floorLevels[objects[i].position.column]++;
+            }
+          }
+
+          function sortObj() {
+            for (var i = 0; i < objects.length; i++) {
+              for (var k = i; k < objects.length; k++) {
+                if (objects[i].name == "tile" && objects[k].name == "tile" && objects[i].position.y > objects[k].position.y) {
+                  var temp = objects[i];
+                  objects[i] = objects[k];
+                  objects[k] = temp;
+                }
+              }
             }
           }
 
           function craneMove(object) {
-            var speed = 0.01;
+            var speed = 0.02;
             if (object.position.x <= object.positionLimit.maxX && object.position.x >= object.positionLimit.minX) {
               object.position.x += speed * object.direction;
+              if (object.tile.position)
+                object.tile.position.x += speed * object.direction;
               if (object.tile.position && object.position.x > object.dropPlace.minX && object.position.x < object.dropPlace.maxX) {
                 object.detachTile();
+              }
+            }
+          }
+
+          function checkLevelComplete() {
+            var complete = true;
+            for (var i = 0; i < floorLevels.length; i++) {
+              if (floorLevels[i] == 0) {
+                complete = false;
+              }
+            }
+            if (complete) {
+
+              var tiles = objects.filter(function (x) {
+                return x.name == "tile" && x.position.y <= floor.height;
+              });
+              if (tiles.length == 12) {
+                for (var k in tiles) {
+                  tiles[k].reset();
+                }
+                scope.score += 100;
               }
             }
           }
