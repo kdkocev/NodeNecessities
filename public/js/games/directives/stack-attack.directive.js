@@ -13,6 +13,27 @@
           $("canvas#stack-attack").attr("width", $(window).width() - 5);
           $("canvas#stack-attack").attr("height", $(window).height() - 5);
 
+
+          element.bind("keydown", function (e) {
+            if (e.which === 40) {
+
+              // socket.emit("game:move", {
+              //   direction: 1
+              // });
+            }
+            if (e.which === 37) {
+              movePlayer(-1, players[0]);
+              // console.log("left")
+              // socket.emit("game:move", {
+              //   direction: -1
+              // });
+            }
+            if (e.which === 39) {
+              movePlayer(1, players[0]);
+              // console.log("right");
+            }
+          })
+
           function start() {
             var canvas = document.getElementById("stack-attack");
             canvas.addEventListener('webglcontextlost', function (event) {
@@ -36,6 +57,51 @@
             var aXY = gl.getAttribLocation(glprog, "aXY");
             window.aXYpos = gl.getAttribLocation(glprog, "aXYpos");
             window.aRGB = gl.getAttribLocation(glprog, "aRGB");
+
+
+            function getNewObject() {
+              return {
+                position: {
+                  x: 0,
+                  y: 0,
+                  column: 0,
+                  row: 0,
+                  setX: function (x) {
+                    this.x = x;
+                  },
+                  setY: function (y) {
+                    this.y = y;
+                  },
+                  setColumn: function (col) {
+                    this.column = col;
+                  },
+                  setRow: function (row) {
+                    this.row = row;
+                  }
+                },
+                animationLimit: {
+                  minX: 0,
+                  maxX: 0,
+                  minY: 0,
+                  maxY: 0
+                },
+                direction: {
+                  x: 0,
+                  y: 0
+                },
+                move: function () {
+
+                },
+                stopMovement: function () {
+
+                },
+                startMovement: function (direction) {
+
+                }
+              }
+            }
+
+
 
             function getTile(column, color) {
               // var tile
@@ -171,6 +237,54 @@
               }
             }
 
+            function getPlayer(x, y) {
+              return {
+                name: "player",
+                falling: true,
+                // should probably use setters
+                position: {
+                  x: x,
+                  y: y,
+                  column: 0,
+                  row: 0
+                },
+                size: {
+                  x: 1 / 6,
+                  y: 4 / 7
+                },
+                data: [0, 0, 0, 1, 1, 0, 1, 1],
+                drawType: gl.TRIANGLE_STRIP,
+                color: {
+                  r: 255,
+                  g: 0,
+                  b: 0
+                },
+                positionLimit: {
+                  minX: -1,
+                  maxX: -1
+                },
+                direction: 0,
+                setMove: function (direction) {
+                  this.direction = direction;
+                  this.position.column += direction;
+                  if (direction > 0) {
+                    this.positionLimit.maxX = -1 + this.position.column * (1 / 6);
+                  }
+                  if (direction < 0) {
+                    this.positionLimit.minX = -1 + this.position.column * (1 / 6);
+                  }
+                }
+              }
+            }
+
+
+
+
+
+
+
+
+
             window.objects = [];
 
             var tiles = [];
@@ -184,11 +298,23 @@
               getCrane(-1.2, -1),
               getCrane(1.2, 1),
               getCrane(-1.2, -1)
+            ];
+
+            window.players = [
+              getPlayer(-1, floor.height)
             ]
+
             for (var i in cranes) {
               objects.push(cranes[i])
             }
             objects.push(floor);
+            objects.push(players[0]);
+
+
+
+
+
+
 
             // Cranes animation
             window.craneNumber = 0;
@@ -200,7 +326,14 @@
                 }
               }
               if (craneNumber > 2) craneNumber = 0;
-            }, 1000);
+            }, 5000);
+
+
+
+
+
+
+
 
             var data = [];
 
@@ -223,9 +356,16 @@
             gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
           }
 
+
+
+
+
+
+
+
+
           // Constant animations at every fps rate
           var then = 0;
-
 
           function drawFrame(now) {
 
@@ -247,6 +387,9 @@
               if (objects[i].name === "crane") {
                 craneMove(objects[i]);
               }
+              if (objects[i].name === "player") {
+                movePlayerCycle(objects[i]);
+              }
 
               checkLevelComplete();
 
@@ -259,8 +402,15 @@
             requestAnimationFrame(drawFrame);
           }
 
+
+
+
+
+
+
+
           function fall(object) {
-            var speed = 0.02;
+            var speed = 0.01;
 
             if (!object.falling) return;
 
@@ -296,7 +446,7 @@
           }
 
           function craneMove(object) {
-            var speed = 0.02;
+            var speed = 0.01;
             if (object.position.x <= object.positionLimit.maxX && object.position.x >= object.positionLimit.minX) {
               object.position.x += speed * object.direction;
               if (object.tile.position)
@@ -326,6 +476,34 @@
                 scope.score += 100;
               }
             }
+          }
+
+
+
+
+
+
+          function movePlayerCycle(player) {
+            var speed = 0.02;
+            // For speed
+            if (player.direction === 0) return;
+
+            if (player.direction === -1 && player.position.x >= player.positionLimit.minX) {
+              player.position.x += speed * player.direction;
+            }
+            if (player.direction === 1 && player.position.x <= player.positionLimit.maxX) {
+              player.position.x += speed * player.direction;
+            }
+          }
+
+          function movePlayer(direction, player) {
+            // If the player is at the end of the window
+            if (direction == -1 && player.position.column === 0) return;
+            if (direction == 1 && player.position.column === 12) return;
+
+            player.setMove(direction);
+            console.log("set movement to: ", direction, player)
+
           }
 
           start();
