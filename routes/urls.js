@@ -7,6 +7,7 @@ module.exports = {
     lobby: '/lobby',
     confirmLogin: '/confirm-login',
     gameMain: '/game',
+    gamePingPong: '/gamepingpong',
 
     uploads_url: '/',
     avatars_url: '/avatars',

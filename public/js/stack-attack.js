@@ -312,19 +312,32 @@ Player.prototype.walkRight = function () {
 }
 
 Player.prototype.Jump = function () {
-  this.animationLimit.maxY = this.position.y + this.size.y * 2;
+  this.animationLimit.maxY = this.position.y + this.size.y * 1.5;
   this.startMovement({
     x: 0,
-    y: 0.01
+    y: 0.015
   });
 }
 
 Player.prototype.stopMovement = function () {
   this.position.setX(this.position.column / 6 - 1); // column * (1/6) - 1
   this.position.setY((this.position.row + 1) / 3.5 - 1);
+  var below = false;
+  for (var i in this.colidesWith) {
+    if (this.colidesWith[i].position.column == this.position.column && this.colidesWith[i].position.row == this.position.row - 1) {
+      below = true;
+    }
+  }
   this.speed = {
     x: 0,
-    y: -0.01
+    y: 0
+  }
+  if (!below) {
+    console.log("nothing")
+    this.speed = {
+      x: 0,
+      y: -0.01
+    }
   }
   this.setLimits(-1, 1, -1, 1);
 }

@@ -13,12 +13,19 @@ module.exports = function (io, socket, games) {
     games[socket.user.game.id] = {
       id: socket.user.game.id,
       players: [{
-        x: 0,
-        y: 0
+        position: {
+          column: 0,
+          row: 0
+        }
       }, {
-        x: 1,
-        y: 0.3
+        column: 0,
+        row: 3
       }],
+      boxes: [{
+        column: 1,
+        row: 1
+      }],
+      cranes: []
     }
     process.nextTick(() => {
       startGame(games[socket.user.game.id])
@@ -59,8 +66,9 @@ module.exports = function (io, socket, games) {
   }
 
   // Game logic here 
-  function updateGame(game, cb) {
+  var i = 0;
 
+  function updateGame(game, cb) {
     cb(game)
   }
 

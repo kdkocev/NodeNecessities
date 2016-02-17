@@ -40,6 +40,8 @@ module.exports = function (passport) {
 
   router.get(urls.gameMain, isLoggedIn, game.main);
 
+  router.get(urls.gamePingPong, isLoggedIn, game.gamepingpong)
+
   return router;
 };
 

@@ -7,7 +7,7 @@
 
       socket.on("game:update", function (data) {
         //console.log("game:update");
-        // $scope.syncData(data);
+        $scope.syncData(data);
       })
 
       // When the other player moves. This can be recieved on game:update instead

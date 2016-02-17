@@ -70,7 +70,7 @@
               if (!scope.game.ball) {
                 setTimeout(() => {
                   scope.gameLoop()
-                }, 500);
+                }, 50);
                 return;
               }
               scope.updateGame(scope.updateCanvas, function () {

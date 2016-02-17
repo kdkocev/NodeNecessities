@@ -9,5 +9,12 @@ module.exports = {
         token: token
       });
     });
+  },
+  gamepingpong: function (req, res, next) {
+    req.user.getToken(function (token) {
+      res.render("games/ping-pong", {
+        token: token
+      })
+    });
   }
 }

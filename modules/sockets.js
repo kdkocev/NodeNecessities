@@ -40,8 +40,8 @@ module.exports = function (server) {
               success: true
             });
 
-            // require("./sockets/ping-pong.sockets.js")(io, socket, games);
-            require("./sockets/stack-attack.sockets.js")(io, socket, games);
+            require("./sockets/ping-pong.sockets.js")(io, socket, games);
+            //require("./sockets/stack-attack.sockets.js")(io, socket, games);
             require("./sockets/chat.sockets.js")(io, socket);
 
 

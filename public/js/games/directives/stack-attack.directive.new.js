@@ -10,14 +10,13 @@
         scope: true,
         link: function (scope, element, attrs) {
           scope.score = 0;
+          scope.syncData = function (data) {
+            window.objects[window.player1].setColumn(data.player[0].position.column);
+          }
           $("canvas#stack-attack").attr("width", $(window).width() - 5);
           $("canvas#stack-attack").attr("height", $(window).height() - 5);
 
           element.bind("keydown", function (e) {
-            if (e.which === 40) {
-              movePlayer([0, -1])
-              //startFalling(objects[0]);
-            }
             if (e.which === 38) {
               movePlayer([0, 1])
             }
@@ -32,7 +31,7 @@
           })
 
 
-          var objects = [];
+          window.objects = [];
 
           // Add boxes
           for (var i = 0; i < 60; i++) {
@@ -64,7 +63,7 @@
           for (var j = 0; j < objects.length; j++) {
             player.colidesWith.push(objects[j])
           }
-          objects.push(player);
+          window.player1 = objects.push(player);
 
           console.log(objects);
 
