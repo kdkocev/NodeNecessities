@@ -94,11 +94,11 @@ function Element() {
     row: 0,
     setX: function (x) {
       this.x = x;
-      this.column = parseInt((((x + 1) / 2) * 12).toFixed(0));
+      this.column = Math.round((((x + 1) / 2) * 12));
     },
     setY: function (y) {
       this.y = y;
-      this.row = parseInt((((y + 1) / 2) * 7 - 1).toFixed(0))
+      this.row = Math.round((((y + 1) / 2) * 7 - 1))
     },
     setColumn: function (col) {
       this.column = col;
@@ -119,10 +119,10 @@ function Element() {
   }
 
   this.animationLimit = {
-    minX: 0,
-    maxX: 0,
-    minY: 0,
-    maxY: 0
+    minX: -1,
+    maxX: 1,
+    minY: -1,
+    maxY: 1
   }
 
   this.speed = {
@@ -148,9 +148,23 @@ Element.prototype.checkLimits = function () {
 
 Element.prototype.move = function () {
   if (this.checkLimits()) {
+    var last_position = {
+      column: this.position.column,
+      row: this.position.row
+    };
     this.position.setX(this.position.x + this.speed.x);
     this.position.setY(this.position.y + this.speed.y);
     if (!this.checkLimits()) {
+      if (this.constructor.name == "Crane") {
+        if (this.speed.x > 0) {
+          this.position.setX(this.animationLimit.maxX - this.size.x);
+        } else {
+          this.position.setX(this.animationLimit.minX);
+        }
+      } else {
+        this.position.column = last_position.column;
+        this.position.row = last_position.row;
+      }
       this.stopMovement();
     }
   }
@@ -175,16 +189,142 @@ function Box(x, y) {
   Element.call(this);
   this.position.setX(x);
   this.position.setY(y);
-  console.log(this);
+  this.colidesWith = [];
 }
 Box.prototype = Object.create(Element.prototype);
 Box.prototype.constructor = Box;
+Box.prototype.noCollisions = function () {
+  if (this.speed.x === 0 && this.speed.y === 0) return;
+  for (var i in this.colidesWith) {
+    if (this.position.column == this.colidesWith[i].position.column && this.position.row == this.colidesWith[i].position.row) {
+      return false;
+    }
+  }
+  return true;
+}
+Box.prototype.fall = function () {
+  this.startMovement({
+    x: 0,
+    y: -0.01
+  });
+  this.animationLimit.minY = -1;
+}
 
 
 
 function Crane() {
   Element.call(this);
-  this.setLimits(-1.2, 1.2, 1, 1);
+  this.position.setY(0.9);
+  this.position.setX(-1);
+  this.setLimits(-1.3, 1.3, 0, 2);
+  this.box = {};
+  this.noBox = true;
 }
 Crane.prototype = Object.create(Element.prototype);
 Crane.prototype.constructor = Crane;
+
+Crane.prototype.stopMovement = function () {
+  this.speed = {
+    x: 0,
+    y: 0
+  };
+}
+
+Crane.prototype.takeBox = function (box) {
+  this.box = box;
+  this.box.position.x = 1;
+  this.box.position.y = 1;
+  this.dropPosition = Math.floor(random(0, 12));
+  this.noBox = false;
+}
+
+// Calls Element.move()
+Crane.prototype.move = function () {
+  this.__proto__.__proto__.move.call(this);
+  if (!this.noBox) {
+    this.box.position.setX(this.position.x);
+    this.box.position.setY(this.position.y - 0.1);
+    if (this.box.position.column === this.dropPosition) {
+      this.box.position.setRow(5);
+      this.box.position.setColumn(this.dropPosition);
+      this.box.fall();
+      this.box = {};
+      this.noBox = true;
+    }
+  }
+}
+
+
+
+function Player() {
+  Element.call(this);
+  this.size.y *= 2;
+  this.position.setColumn(0);
+  this.position.setRow(0);
+  this.colidesWith = [];
+  this.startMovement({
+    x: 0,
+    y: -0.01
+  });
+}
+Player.prototype = Object.create(Element.prototype);
+Player.prototype.constructor = Player;
+
+Player.prototype.noCollisions = function () {
+  if (this.speed.x === 0 && this.speed.y === 0) return;
+  for (var i in this.colidesWith) {
+    if (this.position.column == this.colidesWith[i].position.column && this.position.row == this.colidesWith[i].position.row) {
+      return false;
+    }
+  }
+  return true;
+}
+
+Player.prototype.fall = function () {
+  this.startMovement({
+    x: 0,
+    y: -0.01
+  });
+  this.animationLimit.minY = -1;
+}
+
+Player.prototype.startMovement = function (speed) {
+  this.speed = speed;
+}
+
+Player.prototype.walkLeft = function () {
+  if (this.position.column === 0) return;
+  this.animationLimit.minX = this.position.x - this.size.x;
+  this.startMovement({
+    x: -0.01,
+    y: 0
+  });
+}
+
+Player.prototype.walkRight = function () {
+  if (this.position.column === 11) return;
+  console.log("right");
+  this.animationLimit.maxX = this.position.x + this.size.x * 2;
+  this.startMovement({
+    x: +0.01,
+    y: 0
+  });
+}
+
+Player.prototype.Jump = function () {
+  this.animationLimit.maxY = this.position.y + this.size.y * 2;
+  this.startMovement({
+    x: 0,
+    y: 0.01
+  });
+}
+
+Player.prototype.stopMovement = function () {
+  this.position.setX(this.position.column / 6 - 1); // column * (1/6) - 1
+  this.position.setY((this.position.row + 1) / 3.5 - 1);
+  this.speed = {
+    x: 0,
+    y: -0.01
+  }
+  this.setLimits(-1, 1, -1, 1);
+}

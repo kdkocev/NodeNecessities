@@ -15,8 +15,8 @@
 
           element.bind("keydown", function (e) {
             if (e.which === 40) {
-              // movePlayer([0, -1])
-              startFalling(objects[0]);
+              movePlayer([0, -1])
+              //startFalling(objects[0]);
             }
             if (e.which === 38) {
               movePlayer([0, 1])
@@ -32,35 +32,67 @@
           })
 
 
-          window.objects = [];
+          var objects = [];
 
-
-          for (var i = 0; i < 5; i++) {
+          // Add boxes
+          for (var i = 0; i < 60; i++) {
             var box = new Box(0, 0);
             box.color = {
-              r: random(0, 255),
-              g: random(0, 255),
-              b: random(0, 255)
+              r: random(0, 200),
+              g: random(0, 200),
+              b: random(0, 200)
             }
-            box.position.setColumn(Math.floor(random(0, 12)));
-            box.position.setRow(Math.floor(random(0, 5)))
-            box.setLimits(-1, 1, -1, 1);
+            box.position.setY(10);
+            box.position.setX(10);
             objects.push(box);
           }
 
+          for (var i = 0; i < objects.length; i++) {
+            for (var j = 0; j < objects.length; j++) {
+              if (i != j) {
+                objects[i].colidesWith.push(objects[j])
+              }
+            }
+          }
+
+
+          // Add cranes
+          var crane = new Crane();
+          objects.push(crane);
+
+          var player = new Player();
+          for (var j = 0; j < objects.length; j++) {
+            player.colidesWith.push(objects[j])
+          }
+          objects.push(player);
+
+          console.log(objects);
+
+          moveCrane(crane);
+          setInterval(function () {
+            moveCrane(crane);
+          }, 8000);
+
+
+          // Main game Loop
           window.nextFrame = function (now) {
             drawFrame(now, objects, function (x) {
               x.move()
             });
           }
 
+
+
           function movePlayer(direction) {
             console.log(objects)
-            var speed = {
-              x: 0.01 * direction[0],
-              y: 0.01 * direction[1]
+            if (direction[1] > 0) {
+              player.Jump()
+            } else
+            if (direction[0] < 0) {
+              player.walkLeft();
+            } else {
+              player.walkRight();
             }
-            objects[0].startMovement(speed);
           }
 
           function startFalling(object) {
@@ -71,7 +103,26 @@
             object.animationLimit.minY = -1;
           }
 
+          function moveCrane(crane) {
+            if (crane.noBox) {
+              for (var i in objects) {
+                if (objects[i].constructor.name !== "Box" || (objects[i].position.x <= 1 && objects[i].position.x >= -1)) continue;
+                crane.takeBox(objects[i]);
+                break;
+              }
+              var x = -0.01;
+              if (crane.position.x < 0) {
+                x *= -1;
+              }
+              crane.startMovement({
+                x: x,
+                y: 0
+              });
+            }
+          }
 
+
+          // Start the game
           start(objects);
         }
       }
