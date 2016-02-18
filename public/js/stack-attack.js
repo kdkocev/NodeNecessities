@@ -49,9 +49,14 @@ function addObjectsToDraw(objects) {
     addObject(objects[i])
   }
 
+  console.log(data.length);
+
+  // Hardcoded like shit
+  data.length += 2000;
+
   var buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
 
   gl.enableVertexAttribArray(aXY);
   gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
@@ -345,4 +350,32 @@ Player.prototype.stopMovement = function () {
     }
   }
   this.setLimits(-1, 1, -1, 1);
+}
+
+function addItemForDrawing(objects) {
+  var data = [];
+
+  function addObject(o) {
+    for (var i = 0; i < o.data.length; i++) {
+      data.push(o.data[i++] * o.size.x);
+      data.push(o.data[i] * o.size.y);
+    }
+  }
+
+  for (var i in objects) {
+    addObject(objects[i])
+  }
+
+  console.log(data.length)
+
+  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(data));
+}
+
+
+function Block() {
+  this.position = [];
+  this.scale = [];
+  this.data = [0, 0, 1, 0, 0, 1, 1, 1]; // Triangles
+  this.color = [];
+  this.fill = function () {}
 }

@@ -11,6 +11,7 @@ block content
     script(id="vshader" type="x-shader/x-vertex").
         attribute vec2 aXY;
         attribute vec2 aXYpos;
+        attribute vec2 aXYoffset;
         attribute vec3 aRGB;
 
         varying vec3 vRGB;
@@ -20,7 +21,7 @@ block content
         }
 
         void main() {
-            gl_Position = vec4(add(aXY,aXYpos), 0, 1);
+            gl_Position = vec4(add(add(aXY,aXYpos), aXYoffset), 0, 1);
             vRGB = aRGB;
         }
 
@@ -32,6 +33,6 @@ block content
         void main() {
             gl_FragColor = vec4(vRGB, 1);
         }
-    script(src="/js/stack-attack.js")
+    script(src="/js/stack-attack.new.js")
     script(src="/js/games/controllers/stack-attack.controller.js")
     script(src="/js/games/directives/stack-attack.directive.new.js")

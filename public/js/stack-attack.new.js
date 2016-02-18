@@ -20,7 +20,7 @@ function start() {
   }, false);
 
   init();
-  drawFrame(0);
+  drawFrame(0, {}, function () {}, function () {});
 }
 
 
@@ -31,9 +31,10 @@ function init() {
 
   var aXY = gl.getAttribLocation(glprog, "aXY");
   window.aXYpos = gl.getAttribLocation(glprog, "aXYpos");
+  window.aXYoffset = gl.getAttribLocation(glprog, "aXYoffset");
   window.aRGB = gl.getAttribLocation(glprog, "aRGB");
 
-  // var data = [];
+  var data = [];
 
   // function addObject(o) {
   //   for (var i = 0; i < o.data.length; i++) {
@@ -46,18 +47,20 @@ function init() {
   //   addObject(objects[i])
   // }
 
-  // var buf = gl.createBuffer();
-  // gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  data.length += 10000;
 
-  // gl.enableVertexAttribArray(aXY);
-  // gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
+
+  gl.enableVertexAttribArray(aXY);
+  gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
 }
 
 // Constant animations at every fps rate
 var then = 0;
 
-function drawFrame(now, objects, cb) {
+function drawFrame(now, objects, cbBlocks, cbObjects) {
 
   now *= 0.001;
   var deltaTime = now - then;
@@ -65,14 +68,18 @@ function drawFrame(now, objects, cb) {
 
   gl.clear(gl.COLOR_BUFFER_BIT);
 
+  cbObjects();
+
   // For buffer drawing
   var offset = 0;
   for (var i in objects) {
 
-    cb(objects[i])
+    // cbBlocks(objects[i])
 
-    gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
     gl.vertexAttrib3f(aRGB, objects[i].color.r / 255, objects[i].color.g / 255, objects[i].color.b / 255);
+    gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
+    gl.vertexAttrib2f(aXYoffset, objects[i].offsetElement.getX(), objects[i].offsetElement.getY());
+
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, objects[i].data.length / 2)
     offset += objects[i].data.length / 2;
   }
@@ -80,22 +87,203 @@ function drawFrame(now, objects, cb) {
   requestAnimationFrame(window.nextFrame);
 }
 
-function addItemForDrawing(data) {
-  var buf = window.gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+function updateDrawingObjects(objects) {
+  var data = [];
 
-  gl.enableVertexAttribArray(aXY);
-  gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
+  function addObject(o) {
+    for (var i = 0; i < o.data.length; i++) {
+      data.push(o.data[i++] * o.size.x);
+      data.push(o.data[i] * o.size.y);
+    }
+  }
+
+  for (var i in objects) {
+    addObject(objects[i])
+  }
+
+  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(data));
 }
 
 
-function Block() {
-  this.position = [];
-  this.scale = [];
-  this.data = [0, 0, 1, 0, 0, 1, 1, 1]; // Triangles
-  this.color = [];
-  this.fill = function () {}
+function Block(BaseElement) {
+
+  this.position = {
+    x: 0,
+    y: 0
+  }
+  this.size = {
+    x: blockW,
+    y: blockH
+  }
+  this.color = {
+    r: 127,
+    g: 127,
+    b: 127
+  }
+  this.data = [0, 0, 0, 1, 1, 0, 1, 1];
+  this.offsetElement = BaseElement;
 }
 
-addItemForDrawing([0, 0, 1, 0, 0, 1, 1, 1]);
+Block.prototype.setPosition = function (x, y) {
+  this.position.x = x;
+  this.position.y = y;
+}
+
+Block.prototype.fill = function () {
+  this.color = {
+    r: 0,
+    g: 0,
+    b: 0
+  }
+}
+
+window.blockW = 2 / 100;
+window.blockH = 2 / 64;
+window.maxRows = 8;
+window.maxColumns = 12;
+window.wallLeft = 4 * blockW;
+window.floorHeght = 3 * blockH;
+
+window.textures = [
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 0, 1, 1, 0, 0, 1],
+    [1, 0, 0, 1, 1, 0, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 0, 1, 1, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+  ],
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 1, 1, 1, 1],
+    [1, 0, 0, 1, 0, 0, 1, 1],
+    [1, 0, 0, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ]
+];
+
+var CROSSED_BOX = 0;
+var JUST_THE_EDGES = 1;
+var MAILBOX = 2;
+
+function Box() {
+  this.position = {
+    column: 0,
+    row: 0
+  }
+
+  this.animationLimit = {
+    column: 0,
+    row: 0
+  }
+
+  this.texture = CROSSED_BOX;
+}
+
+Box.prototype.setPosition = function (column, row) {
+  this.position.column = column;
+  this.position.row = row;
+}
+
+Box.prototype.setLimits = function (column, row) {
+  this.animationLimit.column = column;
+  this.animationLimit.row = row;
+}
+
+Box.prototype.setColumn = function (column) {
+  this.position.column = column;
+}
+
+Box.prototype.setRow = function (row) {
+  this.position.row = row;
+}
+
+Box.prototype.getX = function () {
+  return ((this.position.column / maxColumns) * (2 - wallLeft) - (1 - wallLeft));
+}
+
+Box.prototype.getY = function () {
+  return ((this.position.row / maxRows) * 2 - 1 + floorHeght);
+}
+
+Box.prototype.calculateFallLimits = function () {
+  var max = -1;
+  for (var i in boxes) {
+    if (boxes[i].position.column == this.position.column && boxes[i].position.row < this.position.row) {
+      if (boxes[i].position.row > max) {
+        max = boxes[i].position.row;
+      }
+    }
+  }
+  this.animationLimit.row = max + 1;
+}
+
+Box.prototype.fall = function () {
+  this.calculateFallLimits();
+  this.move();
+}
+
+Box.prototype.move = function () {
+  console.log("moving box")
+  if (this.position.column !== this.animationLimit.column) {
+    var speed = this.animationLimit.column - this.position.column;
+    var direction = 1;
+    if (speed < 0) {
+      direction = -1;
+    }
+    this.position.column += direction / 8;
+  }
+  if (this.position.row !== this.animationLimit.row) {
+    var speed = this.animationLimit.row - this.position.row;
+    var direction = 1;
+    if (speed < 0) {
+      direction = -1;
+    }
+    this.position.row += direction / 8;
+  }
+}
