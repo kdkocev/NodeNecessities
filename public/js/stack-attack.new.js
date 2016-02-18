@@ -144,7 +144,7 @@ window.maxColumns = 12;
 window.wallLeft = 4 * blockW;
 window.floorHeght = 3 * blockH;
 
-window.textures = [
+window.boxTextures = [
   [
     [1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 0, 0, 0, 0, 1, 1],
@@ -207,9 +207,100 @@ window.textures = [
   ]
 ];
 
+
+window.playerTextures = [
+  // IDLE 1
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 0, 0, 1, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0]
+  ],
+  // IDLE 2
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 0, 0, 1, 1, 0],
+    [0, 1, 1, 0, 0, 1, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+
+    [1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 0, 0, 1, 1, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0]
+  ],
+  // IDLE 3
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1],
+    [0, 1, 0, 0, 0, 0, 0, 1],
+    [0, 1, 0, 0, 0, 1, 1, 1],
+
+    [1, 0, 1, 1, 1, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 0, 1],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0]
+  ],
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 0, 1, 0],
+    [1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 0, 0, 0, 1, 0],
+    [1, 1, 1, 0, 0, 0, 1, 0],
+
+    [0, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0]
+  ]
+];
+
+
+
+
 var CROSSED_BOX = 0;
 var JUST_THE_EDGES = 1;
 var MAILBOX = 2;
+
+var PLAYER_IDLE_1 = 0;
+var PLAYER_IDLE_2 = 1;
+var PLAYER_IDLE_3 = 2;
+var PLAYER_IDLE_4 = 3;
 
 function Box() {
   this.position = {
@@ -269,7 +360,6 @@ Box.prototype.fall = function () {
 }
 
 Box.prototype.move = function () {
-  console.log("moving box")
   if (this.position.column !== this.animationLimit.column) {
     var speed = this.animationLimit.column - this.position.column;
     var direction = 1;
@@ -285,5 +375,78 @@ Box.prototype.move = function () {
       direction = -1;
     }
     this.position.row += direction / 8;
+  }
+}
+
+function Player() {
+  this.position = {
+    column: 0,
+    row: 0
+  }
+
+  this.animationLimit = {
+    column: 0,
+    row: 0
+  }
+
+  this.blocks = [];
+
+  this.texture = PLAYER_IDLE_4;
+}
+
+Player.prototype.setPosition = function (column, row) {
+  this.position.column = column;
+  this.position.row = row;
+}
+
+Player.prototype.setColumn = function (column) {
+  this.position.column = column;
+}
+
+Player.prototype.setRow = function (row) {
+  this.position.row = row;
+}
+
+Player.prototype.getX = function () {
+  return ((this.position.column / maxColumns) * (2 - wallLeft) - (1 - wallLeft));
+}
+
+Player.prototype.getY = function () {
+  return ((this.position.row / maxRows) * 2 - 1 + floorHeght);
+}
+
+Player.prototype.calculateFallLimits = function () {
+  var max = -1;
+  for (var i in boxes) {
+    if (boxes[i].position.column == this.position.column && boxes[i].position.row < this.position.row) {
+      if (boxes[i].position.row > max) {
+        max = boxes[i].position.row;
+      }
+    }
+  }
+  this.animationLimit.row = max + 1;
+}
+
+Player.prototype.fall = function () {
+  this.calculateFallLimits();
+  this.move();
+}
+
+Player.prototype.move = function () {
+  if (this.position.column !== this.animationLimit.column) {
+    var speed = this.animationLimit.column - this.position.column;
+    var direction = 1;
+    if (speed < 0) {
+      direction = -1;
+    }
+    this.position.column += direction / 4;
+  }
+  if (this.position.row !== this.animationLimit.row) {
+    var speed = this.animationLimit.row - this.position.row;
+    var direction = 1;
+    if (speed < 0) {
+      direction = -1;
+    }
+    this.position.row += direction / 4;
   }
 }

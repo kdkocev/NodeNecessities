@@ -18,6 +18,7 @@
 
           window.objects = [];
           window.boxes = [];
+          window.players = [];
 
           element.bind("keydown", function (e) {
             if (e.which === 13) {
@@ -25,30 +26,45 @@
             }
 
             if (e.which === 40) {
-              box.position.row -= 1;
+              player.position.row -= 1;
+              // box.position.row -= 1;
             }
             if (e.which === 38) {
-              box.position.row += 1;
+              player.position.row += 1;
+              // box.position.row += 1;
             }
             if (e.which === 37) {
-              box.position.column -= 1;
-              box.animationLimit.column = box.position.column;
+              player.position.column -= 1;
+              player.animationLimit.column = player.position.column;
+              // box.position.column -= 1;
+              // box.animationLimit.column = box.position.column;
             }
             if (e.which === 39) {
-              box.position.column += 1;
-              box.animationLimit.column = box.position.column;
+              player.position.column += 1;
+              player.animationLimit.column = player.position.column;
+              // box.position.column += 1;
+              // box.animationLimit.column = box.position.column;
+            }
+            if (e.which === 192) { // `
+              addPlayer();
+            }
+            if (e.which === 68) { //d
+              movePlayerLeft(player);
+            }
+            if (e.which === 82) { //r
+              playerChangeTexture(player);
             }
           })
 
 
           function addBox() {
             window.box = new Box();
-            box.texture = Math.floor(random(0, window.textures.length));
+            box.texture = Math.floor(random(0, window.boxTextures.length));
             var x = 0;
             var y = 0;
-            for (var i = textures[box.texture].length - 1; i >= 0; i--) {
-              for (var j in textures[box.texture][i]) {
-                if (textures[box.texture][i][j] == 1) {
+            for (var i = boxTextures[box.texture].length - 1; i >= 0; i--) {
+              for (var j in boxTextures[box.texture][i]) {
+                if (boxTextures[box.texture][i][j] == 1) {
                   var block = new Block(box);
                   block.setPosition(x, y);
                   objects.push(block);
@@ -62,6 +78,59 @@
             updateDrawingObjects(objects);
           }
 
+          function addPlayer() {
+            window.player = new Player();
+            var x = 0;
+            var y = 0;
+            for (var i = playerTextures[player.texture].length - 1; i >= 0; i--) {
+              for (var j in playerTextures[player.texture][i]) {
+                if (playerTextures[player.texture][i][j] == 1) {
+                  var block = new Block(player);
+                  block.setPosition(x, y);
+                  player.blocks.push(block);
+                  objects.push(block);
+                }
+                x += blockW;
+              }
+              x = 0;
+              y += blockH;
+            }
+            players.push(player);
+            updateDrawingObjects(objects);
+          }
+
+          function movePlayerLeft(player) {
+            player.animationLimit.column += 1;
+          }
+
+          function playerChangeTexture(player) {
+            player.texture = Math.floor(random(0, playerTextures.length));
+            var x = 0;
+            var y = 0;
+            var textureCounter = 0;
+            for (var i = playerTextures[player.texture].length - 1; i >= 0; i--) {
+              for (var j in playerTextures[player.texture][i]) {
+                if (playerTextures[player.texture][i][j] == 1) {
+                  //var block = new Block(player);
+                  //block.setPosition(x, y);
+                  //player.blocks.push(block);
+                  //objects.push(block);
+                  if (textureCounter > player.blocks.length) {
+                    var block = new Block(player);
+                    player.blocks.push(block);
+                    objects.push(block);
+                  }
+                  console.log(player.blocks[textureCounter]);
+                  player.blocks[textureCounter].setPosition(x, y);
+
+                  textureCounter++;
+                }
+                x += blockW;
+              }
+              x = 0;
+              y += blockH;
+            }
+          }
 
 
 
@@ -121,9 +190,11 @@
                 // For objects
                 if (now - lastAnimation > animationDiff) {
                   lastAnimation = now;
-                  console.log("animate")
                   for (var i in boxes) {
                     boxes[i].fall();
+                  }
+                  for (var i in players) {
+                    players[i].move();
                   }
                 }
               });
