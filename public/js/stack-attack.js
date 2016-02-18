@@ -15,7 +15,7 @@ function start(objects) {
     event.preventDefault();
   }, false);
   canvas.addEventListener('webglcontextrestored', function () {
-    init();
+    init(objects);
   }, false);
 
   init(objects);
@@ -28,10 +28,14 @@ function init(objects) {
   window.glprog = getProgram("vshader", "fshader");
 
 
-  var aXY = gl.getAttribLocation(glprog, "aXY");
+  window.aXY = gl.getAttribLocation(glprog, "aXY");
   window.aXYpos = gl.getAttribLocation(glprog, "aXYpos");
   window.aRGB = gl.getAttribLocation(glprog, "aRGB");
 
+  addObjectsToDraw(objects);
+}
+
+function addObjectsToDraw(objects) {
   var data = [];
 
   function addObject(o) {
@@ -62,6 +66,8 @@ function drawFrame(now, objects, cb) {
   var deltaTime = now - then;
   then = now;
 
+  //addObjectsToDraw(objects);
+
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // For buffer drawing
@@ -70,8 +76,8 @@ function drawFrame(now, objects, cb) {
 
     cb(objects[i])
 
-    gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
     gl.vertexAttrib3f(aRGB, objects[i].color.r / 255, objects[i].color.g / 255, objects[i].color.b / 255);
+    gl.vertexAttrib2f(aXYpos, objects[i].position.x, objects[i].position.y);
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, objects[i].data.length / 2)
     offset += objects[i].data.length / 2;
   }
@@ -333,7 +339,6 @@ Player.prototype.stopMovement = function () {
     y: 0
   }
   if (!below) {
-    console.log("nothing")
     this.speed = {
       x: 0,
       y: -0.01

@@ -17,6 +17,22 @@
           $("canvas#stack-attack").attr("height", $(window).height() - 5);
 
           element.bind("keydown", function (e) {
+            if (e.which === 40) {
+              var x = random(-1, 1);
+              var y = random(-1, 1);
+
+              var box = new Box(0, 0);
+              box.color = {
+                r: random(0, 200),
+                g: random(0, 200),
+                b: random(0, 200)
+              }
+              box.position.setX(x);
+              box.position.setY(y);
+              objects.push(box);
+
+              // addItemToDraw([0, 0, x, 0, 0, y, x, y]);
+            }
             if (e.which === 38) {
               movePlayer([0, 1])
             }
@@ -34,6 +50,7 @@
           window.objects = [];
 
           // Add boxes
+
           for (var i = 0; i < 60; i++) {
             var box = new Box(0, 0);
             box.color = {
