@@ -135,11 +135,24 @@
               }
 
               // if this box has nothing undernieath it - it cannot be pushed
-              var boxesUnderneath = boxes.filter(function (x) {
-                return (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 == boxOnTheLeft.position.row);
-              });
-              // if there are boxes on the right - it cannot be pushed
-              if (boxesUnderneath.length === 0) {
+              if (boxOnTheLeft.position.row !== 0) {
+                var boxesUnderneath = boxes.filter(function (x) {
+                  return (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 == boxOnTheLeft.position.row);
+                });
+                // if there are boxes on the right - it cannot be pushed
+                if (boxesUnderneath.length === 0) {
+                  return;
+                }
+              }
+            }
+
+            // if there is a box / floor to walk on(if there is no box underneath the player)
+            // fixes a bug with flying
+            if (player.position.row !== 0) {
+              var boxesToWalkOn = boxes.filter(function (x) {
+                return (x.position.row === player.position.row - 1 && x.position.column === player.position.column) || (x.position.row - 1 === player.position.row) && (x.position.column - 1 === player.position.column);
+              })
+              if (boxesToWalkOn.length === 0) {
                 return;
               }
             }
@@ -147,8 +160,9 @@
             if (boxOnTheLeft) {
               boxOnTheLeft.animationLimit.column = Math.ceil(boxOnTheLeft.position.column - 1);
               boxOnTheLeft.animationsLeft = 4;
+              window.currentPlayerTexture = 3;
             } else {
-              window.currentPlayerTexture = 2;
+              window.currentPlayerTexture = 1;
             }
 
             player.animationLimit.column = Math.ceil(player.position.column - 1);
@@ -181,11 +195,23 @@
               }
 
               // if this box has nothing undernieath it - it cannot be pushed
-              var boxesUnderneath = boxes.filter(function (x) {
-                return (x.position.column === boxOnTheRight.position.column && x.position.row == boxOnTheRight.position.row - 1);
-              });
-              // if there are boxes on the right - it cannot be pushed
-              if (boxesUnderneath.length === 0) {
+              if (boxOnTheRight.position.row !== 0) {
+                var boxesUnderneath = boxes.filter(function (x) {
+                  return (x.position.column === boxOnTheRight.position.column && x.position.row == boxOnTheRight.position.row - 1);
+                });
+                if (boxesUnderneath.length === 0) {
+                  return;
+                }
+              }
+            }
+
+            // if there are boxes on the right - it cannot be pushed
+            // if there is a box/floor to walk on
+            if (player.position.row !== 0) {
+              var boxesToWalkOn = boxes.filter(function (x) {
+                return (x.position.row + 1 === player.position.row) && (x.position.column - 1 === player.position.column);
+              })
+              if (boxesToWalkOn.length === 0) {
                 return;
               }
             }
@@ -193,6 +219,7 @@
             if (boxOnTheRight) {
               boxOnTheRight.animationLimit.column = Math.floor(boxOnTheRight.position.column + 1);
               boxOnTheRight.animationsLeft = 4;
+              window.currentPlayerTexture = 4;
             } else {
               window.currentPlayerTexture = 2;
             }
@@ -224,6 +251,10 @@
               x = 0;
               y += blockH;
             }
+            while (textureCounter > player.blocks.length) {
+              player.blocks[textureCounter].setPosition(10, 10);
+              textureCounter++;
+            }
           }
 
 
@@ -253,17 +284,33 @@
           ];
 
           var playerWalkLeft = [
-            PLAYER_WALK_LEFT
+            PLAYER_WALK_LEFT_1,
+            PLAYER_WALK_LEFT_2
           ]
 
           var playerWalkRight = [
-            PLAYER_WALK_RIGHT
+            PLAYER_WALK_RIGHT_1,
+            PLAYER_WALK_RIGHT_2
+          ]
+
+          var playerPushLeft = [
+            PLAYER_PUSH_LEFT_1,
+            PLAYER_PUSH_LEFT_2,
+            PLAYER_PUSH_LEFT_3
+          ]
+
+          var playerPushRight = [
+            PLAYER_PUSH_RIGHT_1,
+            PLAYER_PUSH_RIGHT_2,
+            PLAYER_PUSH_RIGHT_3
           ]
 
           var playerTexturesAnimations = [
             playerIdleTextures,
             playerWalkLeft,
-            playerWalkRight
+            playerWalkRight,
+            playerPushLeft,
+            playerPushRight
           ];
 
           window.currentPlayerTexture = 0; // IDLE
