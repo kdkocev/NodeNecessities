@@ -181,6 +181,15 @@
                   var block = new Block(box);
                   block.setPosition(x, y);
                   objects.push(block);
+                } else {
+                  var block = new Block(box);
+                  block.color = {
+                    r: 255,
+                    g: 255,
+                    b: 255
+                  }
+                  block.setPosition(x, y);
+                  objects.push(block);
                 }
                 x += blockW;
               }

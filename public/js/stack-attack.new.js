@@ -780,11 +780,11 @@ Player.prototype.jump = function () {
 
 function Crane() {
   this.position = {
-    column: 0,
-    row: 5
+    column: -2,
+    row: 0
   }
   this.animationLimit = {
-    column: 0,
+    column: -2,
     row: 0
   }
   this.texture = 0;
