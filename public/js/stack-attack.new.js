@@ -541,9 +541,41 @@ window.playerTextures = [
     [1, 1, 1, 1, 1, 1, 1, 0],
     [1, 1, 1, 0, 0, 1, 1, 1],
     [1, 1, 1, 0, 0, 1, 1, 1]
+  ],
+  // Jump Left 
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1],
+    [0, 1, 0, 0, 0, 0, 0, 1],
+    [0, 1, 0, 0, 0, 1, 1, 1],
+
+    [1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 0, 0, 0, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 0, 1, 1, 1, 1],
+    [0, 1, 1, 0, 0, 1, 1, 0]
   ]
 ];
 
+
+window.craneTextures = [
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1]
+  ]
+]
 
 
 
@@ -565,6 +597,7 @@ var PLAYER_PUSH_LEFT_3 = 10;
 var PLAYER_PUSH_RIGHT_1 = 11;
 var PLAYER_PUSH_RIGHT_2 = 12;
 var PLAYER_PUSH_RIGHT_3 = 13;
+var PLAYER_JUMP = 14;
 
 
 function Box() {
@@ -581,6 +614,7 @@ function Box() {
   this.animationsLeft = 0;
 
   this.texture = CROSSED_BOX;
+  this.falling = true;
 }
 
 Box.prototype.setPosition = function (column, row) {
@@ -622,6 +656,8 @@ Box.prototype.calculateFallLimits = function () {
 }
 
 Box.prototype.fall = function () {
+  if (!this.falling) return;
+
   if (this.animationsLeft === 0) {
     this.calculateFallLimits();
   } else {
@@ -738,4 +774,83 @@ Player.prototype.jump = function () {
   }
   this.move();
   this.animationsLeft = 4;
+}
+
+
+
+function Crane() {
+  this.position = {
+    column: 0,
+    row: 5
+  }
+  this.animationLimit = {
+    column: 0,
+    row: 0
+  }
+  this.texture = 0;
+  this.box = {};
+  this.dropColumn = 0;
+}
+
+Crane.prototype.setPosition = function (column, row) {
+  this.column = column;
+  this.row = row;
+}
+
+Crane.prototype.getX = function () {
+  return ((this.position.column / maxColumns) * (2 - wallLeft) - (1 - wallLeft));
+}
+
+Crane.prototype.getY = function () {
+  return ((this.position.row / maxRows) * 2 - 1 + floorHeght);
+}
+
+Crane.prototype.setColumn = function (column) {
+  this.position.column = column;
+}
+
+Crane.prototype.setColumnLimit = function (column) {
+  this.animationLimit.column = column;
+}
+
+Crane.prototype.move = function () {
+  if (this.position.column !== this.animationLimit.column) {
+    var speed = this.animationLimit.column - this.position.column;
+    var direction = 1;
+    if (speed < 0) {
+      direction = -1;
+    }
+    this.position.column += direction / 4;
+
+    if (this.box.position) {
+      this.box.position.column = this.position.column;
+    }
+
+    if (this.position.column == this.dropColumn) {
+      this.drop();
+    }
+  }
+}
+
+Crane.prototype.grasp = function (box) {
+  this.dropColumn = Math.floor(random(0, 12));
+
+  this.box = box;
+  box.setPosition(this.position.column, this.position.row);
+  box.animationLimit.column = this.dropColumn;
+  box.animationLimit.row = this.position.row;
+  box.falling = false;
+
+  if (this.position.column > 6) {
+    this.animationLimit.column = -2;
+  } else {
+    this.animationLimit.column = 14;
+  }
+}
+
+Crane.prototype.drop = function () {
+  if (!this.box.position) return;
+  this.box.falling = true;
+  this.box.fall();
+  this.box = {};
 }

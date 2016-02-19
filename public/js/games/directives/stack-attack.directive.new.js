@@ -19,6 +19,7 @@
           window.objects = [];
           window.boxes = [];
           window.players = [];
+          window.cranes = [];
 
           element.bind("keydown", function (e) {
             if (e.which === 13) {
@@ -61,8 +62,16 @@
             if (e.which === 82) { //r
               playerChangeTexture(player, 2);
             }
-            if (e.which === 87) { //r
+            if (e.which === 87) { //w
               player.jump();
+              // window.currentPlayerTexture = 5;
+            }
+            if (e.which === 70) { // f
+              addCrane();
+            }
+            if (e.which === 90) { // z
+              addBox();
+              crane.grasp(window.box);
             }
           })
 
@@ -203,6 +212,29 @@
             updateDrawingObjects(objects);
           }
 
+          function addCrane() {
+            window.crane = new Crane();
+            var x = 0;
+            var y = 0;
+            crane.position.row = 6;
+            crane.position.column = -2;
+            for (var i = craneTextures[crane.texture].length - 1; i >= 0; i--) {
+              for (var j in craneTextures[crane.texture][i]) {
+                if (craneTextures[crane.texture][i][j] == 1) {
+                  var block = new Block(crane);
+                  block.setPosition(x, y);
+                  // crane.blocks.push(block);
+                  objects.push(block);
+                }
+                x += blockW;
+              }
+              x = 0;
+              y += blockH;
+            }
+            cranes.push(crane);
+            updateDrawingObjects(objects);
+          }
+
           function movePlayerLeft(player) {
 
             // check if you can move left
@@ -322,7 +354,7 @@
             player.animationsLeft = 4;
           }
 
-          function playerChangeTexture(player, texture) {
+          window.playerChangeTexture = function (player, texture) {
             player.texture = texture;
             //player.texture = Math.floor(random(0, playerTextures.length));
             var x = 0;
@@ -333,10 +365,12 @@
                 if (playerTextures[player.texture][i][j] == 1) {
                   if (textureCounter > player.blocks.length) {
                     var block = new Block(player);
+                    block.setPosition(x, y);
                     player.blocks.push(block);
                     objects.push(block);
+                  } else {
+                    player.blocks[textureCounter].setPosition(x, y);
                   }
-                  player.blocks[textureCounter].setPosition(x, y);
 
                   textureCounter++;
                 }
@@ -354,7 +388,9 @@
 
           // Main game Loop
           var lastAnimation = 0;
+          var lastCraneAnimation = 0;
           var animationDiff = 200;
+          var craneRunDiff = 15000;
           var playerIdleTextures = [
             PLAYER_IDLE_1,
             PLAYER_IDLE_1,
@@ -399,13 +435,19 @@
             PLAYER_PUSH_RIGHT_3
           ]
 
+          var playerJump = [
+            PLAYER_JUMP
+          ]
+
           var playerTexturesAnimations = [
             playerIdleTextures,
             playerWalkLeft,
             playerWalkRight,
             playerPushLeft,
-            playerPushRight
+            playerPushRight,
+            playerJump
           ];
+
 
           window.currentPlayerTexture = 0; // IDLE
 
@@ -439,6 +481,23 @@
                     playerTexturesAnimations[window.currentPlayerTexture].push(playerTexturesAnimations[window.currentPlayerTexture].shift());
                     playerChangeTexture(players[i], texture)
                   }
+
+                  for (var i in cranes) {
+                    cranes[i].move();
+                  }
+                }
+
+                if (now - lastCraneAnimation > craneRunDiff) {
+                  if (cranes.length < 3) {
+                    addCrane();
+                  } else {
+                    craneRunDiff = 5000;
+                  }
+                  lastCraneAnimation = now;
+                  addBox();
+                  var crane = cranes.shift();
+                  crane.grasp(window.box);
+                  cranes.push(crane);
                 }
               });
           }
