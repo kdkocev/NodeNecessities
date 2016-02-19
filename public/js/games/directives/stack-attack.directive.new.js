@@ -67,6 +67,100 @@
           })
 
 
+          window.addFloorTexture = function () {
+            var x = 0;
+            var y = 0;
+            var box = new Box();
+            box.position.row = -0.5;
+            for (var o = 0; o < 30; o++) {
+              y = 0;
+              for (var i = floorTexture.length - 1; i >= 0; i--) {
+                for (var j = 0; j < floorTexture[i].length; j++) {
+                  if (floorTexture[i][j] == 1) {
+                    var block = new Block(box);
+                    block.setPosition(x, y);
+                    objects.push(block);
+                  }
+                  x += blockW;
+                }
+                x = 0 + o * 4 * blockW;
+                y += blockH;
+              }
+            }
+            updateDrawingObjects(objects);
+          }
+
+          window.addRoofTexture = function () {
+            var x = 0;
+            var y = 0;
+            var box = new Box();
+            box.position.row = 7;
+            for (var o = 0; o < 30; o++) {
+              y = 0;
+              for (var i = roofTexture.length - 1; i >= 0; i--) {
+                for (var j = 0; j < roofTexture[i].length; j++) {
+                  if (roofTexture[i][j] == 1) {
+                    var block = new Block(box);
+                    block.setPosition(x, y);
+                    objects.push(block);
+                  }
+                  x += blockW;
+                }
+                x = 0 + o * 4 * blockW;
+                y += blockH;
+              }
+            }
+            updateDrawingObjects(objects);
+          }
+
+          window.addWallTexture = function () {
+            var x = 0;
+            var y = 0;
+            var box = new Box();
+            box.position.row = -0.5;
+            box.position.column = -0.5;
+            for (var o = 0; o < 30; o++) {
+              y = o * 4 * blockH;
+              for (var i = wallTexture.length - 1; i >= 0; i--) {
+                for (var j = 0; j < wallTexture[i].length; j++) {
+                  if (wallTexture[i][j] == 1) {
+                    var block = new Block(box);
+                    block.setPosition(x, y);
+                    objects.push(block);
+                  }
+                  x += blockW;
+                }
+                x = 0;
+                y += blockH;
+              }
+            }
+            updateDrawingObjects(objects);
+          }
+
+          window.addBackgroundTexture = function () {
+            var x = 0;
+            var y = 0;
+            var box = new Box();
+            box.position.row = 3;
+            for (var o = 0; o < 30; o++) {
+              y = 0;
+              for (var i = backgroundTexture.length - 1; i >= 0; i--) {
+                for (var j = 0; j < backgroundTexture[i].length; j++) {
+                  if (backgroundTexture[i][j] == 1) {
+                    var block = new Block(box);
+                    block.setPosition(x, y);
+                    objects.push(block);
+                  }
+                  x += blockW;
+                }
+                x = 0 + o * 8 * blockW;
+                y += blockH;
+              }
+            }
+            updateDrawingObjects(objects);
+          }
+
+
           function addBox() {
             window.box = new Box();
             box.texture = Math.floor(random(0, window.boxTextures.length));
@@ -125,37 +219,37 @@
               // if this box is on the end it cannot be pushed
               if (boxOnTheLeft.position.column === 0) return;
 
-              // check if this box has a box on the right or a box on top of this one
+              // check if this box has a box on the left or a box on top of this one
               var boxesOnTheLeft = boxes.filter(function (x) {
                 return (x.position.column === boxOnTheLeft.position.column - 1 && x.position.row === boxOnTheLeft.position.row) || (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 === boxOnTheLeft.position.row);
               });
-              // if there are boxes on the right - it cannot be pushed
+              // if there are boxes on the left - it cannot be pushed
               if (boxesOnTheLeft.length > 0) {
                 return;
               }
 
               // if this box has nothing undernieath it - it cannot be pushed
-              if (boxOnTheLeft.position.row !== 0) {
-                var boxesUnderneath = boxes.filter(function (x) {
-                  return (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 == boxOnTheLeft.position.row);
-                });
-                // if there are boxes on the right - it cannot be pushed
-                if (boxesUnderneath.length === 0) {
-                  return;
-                }
-              }
+              // if (boxOnTheLeft.position.row !== 0) {
+              //   var boxesUnderneath = boxes.filter(function (x) {
+              //     return (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 == boxOnTheLeft.position.row);
+              //   });
+              //   // if there are boxes on the right - it cannot be pushed
+              //   if (boxesUnderneath.length === 0) {
+              //     return;
+              //   }
+              // }
             }
 
             // if there is a box / floor to walk on(if there is no box underneath the player)
             // fixes a bug with flying
-            if (player.position.row !== 0) {
-              var boxesToWalkOn = boxes.filter(function (x) {
-                return (x.position.row === player.position.row - 1 && x.position.column === player.position.column) || (x.position.row - 1 === player.position.row) && (x.position.column - 1 === player.position.column);
-              })
-              if (boxesToWalkOn.length === 0) {
-                return;
-              }
-            }
+            // if (player.position.row !== 0) {
+            //   var boxesToWalkOn = boxes.filter(function (x) {
+            //     return (x.position.row === player.position.row - 1 && x.position.column === player.position.column) || (x.position.row - 1 === player.position.row) && (x.position.column - 1 === player.position.column);
+            //   })
+            //   if (boxesToWalkOn.length === 0) {
+            //     return;
+            //   }
+            // }
 
             if (boxOnTheLeft) {
               boxOnTheLeft.animationLimit.column = Math.ceil(boxOnTheLeft.position.column - 1);
@@ -207,14 +301,14 @@
 
             // if there are boxes on the right - it cannot be pushed
             // if there is a box/floor to walk on
-            if (player.position.row !== 0) {
-              var boxesToWalkOn = boxes.filter(function (x) {
-                return (x.position.row + 1 === player.position.row) && (x.position.column - 1 === player.position.column);
-              })
-              if (boxesToWalkOn.length === 0) {
-                return;
-              }
-            }
+            // if (player.position.row !== 0) {
+            //   var boxesToWalkOn = boxes.filter(function (x) {
+            //     return (x.position.row + 1 === player.position.row) && (x.position.column - 1 === player.position.column);
+            //   })
+            //   if (boxesToWalkOn.length === 0) {
+            //     return;
+            //   }
+            // }
 
             if (boxOnTheRight) {
               boxOnTheRight.animationLimit.column = Math.floor(boxOnTheRight.position.column + 1);
@@ -251,7 +345,7 @@
               x = 0;
               y += blockH;
             }
-            while (textureCounter > player.blocks.length) {
+            while (textureCounter < player.blocks.length) {
               player.blocks[textureCounter].setPosition(10, 10);
               textureCounter++;
             }

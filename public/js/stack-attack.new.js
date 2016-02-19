@@ -36,18 +36,7 @@ function init() {
 
   var data = [];
 
-  // function addObject(o) {
-  //   for (var i = 0; i < o.data.length; i++) {
-  //     data.push(o.data[i++] * o.size.x);
-  //     data.push(o.data[i] * o.size.y);
-  //   }
-  // }
-
-  // for (var i in objects) {
-  //   addObject(objects[i])
-  // }
-
-  data.length += 10000;
+  data.length += 50000;
 
   var buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
@@ -55,6 +44,11 @@ function init() {
 
   gl.enableVertexAttribArray(aXY);
   gl.vertexAttribPointer(aXY, 4, gl.FLOAT, false, 2 * FLOATS, 0 * FLOATS);
+
+  addFloorTexture();
+  addWallTexture();
+  addBackgroundTexture();
+  addRoofTexture();
 }
 
 // Constant animations at every fps rate
@@ -142,7 +136,66 @@ window.blockH = 2 / 64;
 window.maxRows = 8;
 window.maxColumns = 12;
 window.wallLeft = 4 * blockW;
-window.floorHeght = 3 * blockH;
+window.floorHeght = 4 * blockH;
+
+window.floorTexture = [
+  [1, 1, 1, 1],
+  [1, 0, 1, 0],
+  [0, 1, 0, 0],
+  [0, 0, 0, 1]
+]
+
+window.wallTexture = [
+  [0, 0, 0, 1],
+  [1, 1, 1, 1],
+  [0, 1, 0, 1],
+  [1, 1, 1, 1]
+]
+
+window.backgroundTexture = [
+  [1, 0, 1, 0, 1, 0, 1, 0],
+  [1, 1, 0, 1, 1, 1, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 1],
+  [0, 1, 0, 1, 0, 1, 1, 0],
+  [1, 0, 1, 0, 0, 0, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 1, 0, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 0],
+
+  [1, 0, 1, 0, 0, 0, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 1, 0, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 0, 0, 1, 0],
+  [0, 1, 0, 1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0, 1, 0],
+
+  [0, 0, 0, 0, 1, 0, 0, 1],
+  [0, 0, 0, 0, 0, 1, 0, 0],
+  [0, 1, 0, 1, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 1, 0, 0],
+  [1, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 1],
+  [0, 0, 1, 0, 0, 0, 0, 0],
+
+  [1, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 0]
+]
+
+window.roofTexture = [
+  [1, 0, 1, 0],
+  [1, 1, 1, 1],
+  [0, 0, 0, 0],
+  [1, 1, 1, 1]
+]
 
 window.boxTextures = [
   [
@@ -311,9 +364,9 @@ window.playerTextures = [
   ],
   // Walk right 2
   [
-    [0, 1, 1, 1, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1, 0, 0, 0],
-    [1, 0, 0, 0, 1, 0, 0, 0],
+    [0, 1, 1, 1, 1, 0, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 0],
     [1, 1, 1, 1, 1, 1, 1, 0],
     [1, 0, 1, 1, 1, 0, 0, 0],
     [1, 0, 1, 0, 1, 1, 1, 0],
@@ -351,9 +404,9 @@ window.playerTextures = [
   ],
   // Walk left 2
   [
-    [0, 0, 0, 0, 1, 1, 1, 0],
-    [0, 0, 0, 1, 0, 0, 0, 1],
-    [0, 0, 0, 1, 0, 0, 0, 1],
+    [0, 0, 0, 1, 1, 1, 1, 0],
+    [0, 0, 1, 0, 0, 0, 0, 1],
+    [0, 0, 1, 0, 0, 0, 0, 1],
     [0, 1, 1, 1, 1, 1, 1, 1],
     [0, 0, 0, 1, 1, 1, 0, 1],
     [0, 1, 1, 1, 0, 1, 0, 1],
