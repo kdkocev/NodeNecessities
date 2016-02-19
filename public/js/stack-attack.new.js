@@ -269,6 +269,7 @@ window.playerTextures = [
     [0, 1, 1, 1, 1, 1, 1, 0],
     [0, 1, 1, 1, 1, 1, 1, 0]
   ],
+  // IDLE 4
   [
     [0, 0, 1, 1, 1, 1, 0, 0],
     [0, 1, 0, 0, 0, 0, 1, 0],
@@ -287,6 +288,46 @@ window.playerTextures = [
     [1, 0, 1, 1, 1, 1, 1, 1],
     [0, 1, 1, 1, 1, 1, 1, 0],
     [0, 1, 1, 1, 1, 1, 1, 0]
+  ],
+  // Walk right
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 0, 1, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1],
+    [0, 1, 0, 0, 0, 0, 0, 1],
+    [0, 1, 0, 0, 0, 1, 1, 1],
+
+    [0, 1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 0, 1, 0, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 0, 0, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0]
+  ],
+  // WALK LEFT
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 0, 1, 0],
+    [1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 0, 0, 0, 1, 0],
+    [1, 1, 1, 0, 0, 0, 1, 0],
+
+    [0, 0, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 1, 0]
   ]
 ];
 
@@ -301,6 +342,8 @@ var PLAYER_IDLE_1 = 0;
 var PLAYER_IDLE_2 = 1;
 var PLAYER_IDLE_3 = 2;
 var PLAYER_IDLE_4 = 3;
+var PLAYER_WALK_RIGHT = 4;
+var PLAYER_WALK_LEFT = 5;
 
 function Box() {
   this.position = {
@@ -465,7 +508,12 @@ Player.prototype.move = function () {
 
 Player.prototype.jump = function () {
   if (this.position.row >= 4) return;
-  this.animationLimit.row = Math.floor(this.animationLimit.row + 1);
+  if (this.animationsLeft !== 0) return;
+  this.calculateFallLimits();
+
+  if (this.animationLimit.row === this.position.row) {
+    this.animationLimit.row = Math.floor(this.animationLimit.row + 1);
+  }
   this.move();
   this.animationsLeft = 4;
 }

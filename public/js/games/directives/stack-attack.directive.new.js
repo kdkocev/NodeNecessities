@@ -147,6 +147,8 @@
             if (boxOnTheLeft) {
               boxOnTheLeft.animationLimit.column = Math.ceil(boxOnTheLeft.position.column - 1);
               boxOnTheLeft.animationsLeft = 4;
+            } else {
+              window.currentPlayerTexture = 2;
             }
 
             player.animationLimit.column = Math.ceil(player.position.column - 1);
@@ -191,6 +193,8 @@
             if (boxOnTheRight) {
               boxOnTheRight.animationLimit.column = Math.floor(boxOnTheRight.position.column + 1);
               boxOnTheRight.animationsLeft = 4;
+            } else {
+              window.currentPlayerTexture = 2;
             }
 
             player.animationLimit.column = Math.floor(player.position.column + 1);
@@ -248,6 +252,22 @@
             PLAYER_IDLE_1
           ];
 
+          var playerWalkLeft = [
+            PLAYER_WALK_LEFT
+          ]
+
+          var playerWalkRight = [
+            PLAYER_WALK_RIGHT
+          ]
+
+          var playerTexturesAnimations = [
+            playerIdleTextures,
+            playerWalkLeft,
+            playerWalkRight
+          ];
+
+          window.currentPlayerTexture = 0; // IDLE
+
           window.nextFrame = function (now) {
             drawFrame(now, objects,
               function (x) {
@@ -266,8 +286,16 @@
                     players[i].fall();
 
                     // change player textures
-                    var texture = playerIdleTextures[0];
-                    playerIdleTextures.push(playerIdleTextures.shift());
+                    // var texture = playerIdleTextures[0];
+                    // playerIdleTextures.push(playerIdleTextures.shift());
+                    // playerChangeTexture(players[i], texture)
+
+                    if (players[i].animationsLeft === 0) {
+                      currentPlayerTexture = 0;
+                    }
+
+                    var texture = playerTexturesAnimations[window.currentPlayerTexture][0];
+                    playerTexturesAnimations[window.currentPlayerTexture].push(playerTexturesAnimations[window.currentPlayerTexture].shift());
                     playerChangeTexture(players[i], texture)
                   }
                 }
