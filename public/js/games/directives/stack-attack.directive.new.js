@@ -23,6 +23,8 @@
           element.bind("keydown", function (e) {
             if (e.which === 13) {
               addBox();
+              box.setColumn(6);
+              box.setLimits(6, 0);
             }
 
             if (e.which === 40) {
@@ -30,29 +32,37 @@
               // box.position.row -= 1;
             }
             if (e.which === 38) {
-              player.position.row += 1;
-              // box.position.row += 1;
+              // player.position.row += 1;
+              box.position.row += 1;
             }
             if (e.which === 37) {
-              player.position.column -= 1;
-              player.animationLimit.column = player.position.column;
-              // box.position.column -= 1;
-              // box.animationLimit.column = box.position.column;
+              // player.position.column -= 1;
+              // player.animationLimit.column = player.position.column;
+              // console.log(player.position);
+              box.position.column -= 1;
+              box.animationLimit.column = box.position.column;
             }
             if (e.which === 39) {
-              player.position.column += 1;
-              player.animationLimit.column = player.position.column;
-              // box.position.column += 1;
-              // box.animationLimit.column = box.position.column;
+              // player.position.column += 1;
+              // player.animationLimit.column = player.position.column;
+              // console.log(player.position);
+              box.position.column += 1;
+              box.animationLimit.column = box.position.column;
             }
             if (e.which === 192) { // `
               addPlayer();
             }
             if (e.which === 68) { //d
+              movePlayerRight(player);
+            }
+            if (e.which === 65) { // a
               movePlayerLeft(player);
             }
             if (e.which === 82) { //r
-              playerChangeTexture(player);
+              playerChangeTexture(player, 2);
+            }
+            if (e.which === 87) { //r
+              player.jump();
             }
           })
 
@@ -100,27 +110,107 @@
           }
 
           function movePlayerLeft(player) {
-            player.animationLimit.column += 1;
+
+            // check if you can move left
+            if (player.position.column === 0) return;
+
+            // check if there is a box on the left
+            var boxesOnTheLeft = boxes.filter(function (x) {
+              return x.position.column === player.position.column - 1 && Math.round(x.position.row) === Math.round(player.position.row);
+            });
+
+            var boxOnTheLeft;
+            if (boxesOnTheLeft.length > 0) {
+              boxOnTheLeft = boxesOnTheLeft[0];
+              // if this box is on the end it cannot be pushed
+              if (boxOnTheLeft.position.column === 0) return;
+
+              // check if this box has a box on the right or a box on top of this one
+              var boxesOnTheLeft = boxes.filter(function (x) {
+                return (x.position.column === boxOnTheLeft.position.column - 1 && x.position.row === boxOnTheLeft.position.row) || (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 === boxOnTheLeft.position.row);
+              });
+              // if there are boxes on the right - it cannot be pushed
+              if (boxesOnTheLeft.length > 0) {
+                return;
+              }
+
+              // if this box has nothing undernieath it - it cannot be pushed
+              var boxesUnderneath = boxes.filter(function (x) {
+                return (x.position.column === boxOnTheLeft.position.column && x.position.row - 1 == boxOnTheLeft.position.row);
+              });
+              // if there are boxes on the right - it cannot be pushed
+              if (boxesUnderneath.length === 0) {
+                return;
+              }
+            }
+
+            if (boxOnTheLeft) {
+              boxOnTheLeft.animationLimit.column = Math.ceil(boxOnTheLeft.position.column - 1);
+              boxOnTheLeft.animationsLeft = 4;
+            }
+
+            player.animationLimit.column = Math.ceil(player.position.column - 1);
+            player.animationsLeft = 4;
           }
 
-          function playerChangeTexture(player) {
-            player.texture = Math.floor(random(0, playerTextures.length));
+          function movePlayerRight(player) {
+
+            // check if you can move right
+            if (player.position.column === 11) return;
+
+            // check if there is a box on the right
+            var boxesOnTheRight = boxes.filter(function (x) {
+              return x.position.column === player.position.column + 1 && Math.round(x.position.row) === Math.round(player.position.row);
+            });
+
+            var boxOnTheRight;
+            if (boxesOnTheRight.length > 0) {
+              boxOnTheRight = boxesOnTheRight[0];
+              // if this box is on the end it cannot be pushed
+              if (boxOnTheRight.position.column === 11) return;
+
+              // check if this box has a box on the right or a box on the top or
+              var boxesOnTheRight = boxes.filter(function (x) {
+                return (x.position.column === boxOnTheRight.position.column + 1 && x.position.row === boxOnTheRight.position.row) || (x.position.column === boxOnTheRight.position.column && x.position.row - 1 === boxOnTheRight.position.row);
+              });
+              // if there are boxes on the right - it cannot be pushed
+              if (boxesOnTheRight.length > 0) {
+                return;
+              }
+
+              // if this box has nothing undernieath it - it cannot be pushed
+              var boxesUnderneath = boxes.filter(function (x) {
+                return (x.position.column === boxOnTheRight.position.column && x.position.row == boxOnTheRight.position.row - 1);
+              });
+              // if there are boxes on the right - it cannot be pushed
+              if (boxesUnderneath.length === 0) {
+                return;
+              }
+            }
+
+            if (boxOnTheRight) {
+              boxOnTheRight.animationLimit.column = Math.floor(boxOnTheRight.position.column + 1);
+              boxOnTheRight.animationsLeft = 4;
+            }
+
+            player.animationLimit.column = Math.floor(player.position.column + 1);
+            player.animationsLeft = 4;
+          }
+
+          function playerChangeTexture(player, texture) {
+            player.texture = texture;
+            //player.texture = Math.floor(random(0, playerTextures.length));
             var x = 0;
             var y = 0;
             var textureCounter = 0;
             for (var i = playerTextures[player.texture].length - 1; i >= 0; i--) {
               for (var j in playerTextures[player.texture][i]) {
                 if (playerTextures[player.texture][i][j] == 1) {
-                  //var block = new Block(player);
-                  //block.setPosition(x, y);
-                  //player.blocks.push(block);
-                  //objects.push(block);
                   if (textureCounter > player.blocks.length) {
                     var block = new Block(player);
                     player.blocks.push(block);
                     objects.push(block);
                   }
-                  console.log(player.blocks[textureCounter]);
                   player.blocks[textureCounter].setPosition(x, y);
 
                   textureCounter++;
@@ -133,52 +223,31 @@
           }
 
 
-
-
-          // Add boxes
-
-          // for (var i = 0; i < 60; i++) {
-          //   var box = new Box(0, 0);
-          //   box.color = {
-          //     r: random(0, 200),
-          //     g: random(0, 200),
-          //     b: random(0, 200)
-          //   }
-          //   box.position.setY(10);
-          //   box.position.setX(10);
-          //   objects.push(box);
-          // }
-
-          // for (var i = 0; i < objects.length; i++) {
-          //   for (var j = 0; j < objects.length; j++) {
-          //     if (i != j) {
-          //       objects[i].colidesWith.push(objects[j])
-          //     }
-          //   }
-          // }
-
-
-          // // Add cranes
-          // var crane = new Crane();
-          // objects.push(crane);
-
-          // var player = new Player();
-          // for (var j = 0; j < objects.length; j++) {
-          //   player.colidesWith.push(objects[j])
-          // }
-          // window.player1 = objects.push(player);
-
-          // console.log(objects);
-
-          // moveCrane(crane);
-          // setInterval(function () {
-          //   moveCrane(crane);
-          // }, 8000);
-
-
           // Main game Loop
           var lastAnimation = 0;
           var animationDiff = 200;
+          var playerIdleTextures = [
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_2,
+            PLAYER_IDLE_2,
+            PLAYER_IDLE_3,
+            PLAYER_IDLE_3,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_1,
+            PLAYER_IDLE_2,
+            PLAYER_IDLE_2,
+            PLAYER_IDLE_4,
+            PLAYER_IDLE_4,
+            PLAYER_IDLE_1
+          ];
+
           window.nextFrame = function (now) {
             drawFrame(now, objects,
               function (x) {
@@ -194,51 +263,16 @@
                     boxes[i].fall();
                   }
                   for (var i in players) {
-                    players[i].move();
+                    players[i].fall();
+
+                    // change player textures
+                    var texture = playerIdleTextures[0];
+                    playerIdleTextures.push(playerIdleTextures.shift());
+                    playerChangeTexture(players[i], texture)
                   }
                 }
               });
           }
-
-
-
-          // function movePlayer(direction) {
-          //   console.log(objects)
-          //   if (direction[1] > 0) {
-          //     player.Jump()
-          //   } else
-          //   if (direction[0] < 0) {
-          //     player.walkLeft();
-          //   } else {
-          //     player.walkRight();
-          //   }
-          // }
-
-          // function startFalling(object) {
-          //   object.startMovement({
-          //     x: 0,
-          //     y: -0.01
-          //   });
-          //   object.animationLimit.minY = -1;
-          // }
-
-          // function moveCrane(crane) {
-          //   if (crane.noBox) {
-          //     for (var i in objects) {
-          //       if (objects[i].constructor.name !== "Box" || (objects[i].position.x <= 1 && objects[i].position.x >= -1)) continue;
-          //       crane.takeBox(objects[i]);
-          //       break;
-          //     }
-          //     var x = -0.01;
-          //     if (crane.position.x < 0) {
-          //       x *= -1;
-          //     }
-          //     crane.startMovement({
-          //       x: x,
-          //       y: 0
-          //     });
-          //   }
-          // }
 
 
           // Start the game

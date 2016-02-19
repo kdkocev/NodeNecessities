@@ -214,26 +214,6 @@ window.playerTextures = [
     [0, 0, 1, 1, 1, 1, 0, 0],
     [0, 1, 0, 0, 0, 0, 1, 0],
     [0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0],
-    [0, 1, 1, 0, 0, 1, 1, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-
-    [0, 1, 1, 1, 1, 1, 1, 0],
-    [1, 0, 1, 0, 0, 1, 0, 1],
-    [1, 0, 1, 0, 0, 1, 0, 1],
-    [1, 0, 1, 0, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 1, 1, 1, 1, 0, 1],
-    [0, 1, 1, 1, 1, 1, 1, 0],
-    [0, 1, 1, 1, 1, 1, 1, 0]
-  ],
-  // IDLE 2
-  [
-    [0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 0, 1, 0],
     [0, 1, 1, 1, 1, 1, 1, 0],
     [0, 1, 1, 0, 0, 1, 1, 0],
     [0, 1, 1, 0, 0, 1, 1, 0],
@@ -246,6 +226,26 @@ window.playerTextures = [
     [1, 1, 1, 0, 0, 1, 1, 1],
     [1, 0, 1, 1, 1, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0]
+  ],
+  // IDLE 1
+  [
+    [0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [0, 1, 1, 0, 0, 1, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 1, 0],
+
+    [0, 1, 1, 1, 1, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1],
     [0, 1, 1, 1, 1, 1, 1, 0],
     [0, 1, 1, 1, 1, 1, 1, 0]
   ],
@@ -313,6 +313,8 @@ function Box() {
     row: 0
   }
 
+  this.animationsLeft = 0;
+
   this.texture = CROSSED_BOX;
 }
 
@@ -355,7 +357,11 @@ Box.prototype.calculateFallLimits = function () {
 }
 
 Box.prototype.fall = function () {
-  this.calculateFallLimits();
+  if (this.animationsLeft === 0) {
+    this.calculateFallLimits();
+  } else {
+    this.animationsLeft--;
+  }
   this.move();
 }
 
@@ -366,7 +372,7 @@ Box.prototype.move = function () {
     if (speed < 0) {
       direction = -1;
     }
-    this.position.column += direction / 8;
+    this.position.column += direction / 4;
   }
   if (this.position.row !== this.animationLimit.row) {
     var speed = this.animationLimit.row - this.position.row;
@@ -374,7 +380,7 @@ Box.prototype.move = function () {
     if (speed < 0) {
       direction = -1;
     }
-    this.position.row += direction / 8;
+    this.position.row += direction / 4;
   }
 }
 
@@ -392,6 +398,8 @@ function Player() {
   this.blocks = [];
 
   this.texture = PLAYER_IDLE_4;
+
+  this.animationsLeft = 0;
 }
 
 Player.prototype.setPosition = function (column, row) {
@@ -428,7 +436,11 @@ Player.prototype.calculateFallLimits = function () {
 }
 
 Player.prototype.fall = function () {
-  this.calculateFallLimits();
+  if (this.animationsLeft === 0) {
+    this.calculateFallLimits();
+  } else {
+    this.animationsLeft--;
+  }
   this.move();
 }
 
@@ -449,4 +461,11 @@ Player.prototype.move = function () {
     }
     this.position.row += direction / 4;
   }
+}
+
+Player.prototype.jump = function () {
+  if (this.position.row >= 4) return;
+  this.animationLimit.row = Math.floor(this.animationLimit.row + 1);
+  this.move();
+  this.animationsLeft = 4;
 }
