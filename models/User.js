@@ -44,17 +44,21 @@ var userSchema = mongoose.Schema({
 })
 
 
+
+/**
+ *  Provides a pre-save middlewear for validation
+ *  Encrypts the password if it is new
+ */
+
 userSchema.pre('save', function (next) {
     var self = this;
     mongoose.model('User', userSchema).findById(this._id)
         .select("+local.password").exec(function (err, user) {
             if (err) next(err);
             if (!user) {
-                // console.log("generating new password");
                 self.local.password = self.generateHash(self.local.password);
                 next();
             } else {
-                // console.log("the user saved is not new")
                 if (user.local.password === self.local.password) {
                     next();
                 } else {
@@ -71,40 +75,40 @@ userSchema.methods.generateHash = function (password) {
 
 
 
-userSchema.methods.validPassword = function (password, cb) {
+/**
+ *  Checks if password is valid
+ *  @param {String} password
+ *  @return {Promise}
+ */
+
+userSchema.methods.validPassword = function (password) {
     var self = this;
-    // return new Promise((resolve, reject) => {
     return mongoose.model('User', userSchema).findById(self._id)
         .select("+local.password").exec()
         .then(user => {
             if (bcrypt.compareSync(password, user.local.password)) {
-                // console.log("password match")
                 return Promise().resolve();
-                // resolve();
             } else {
-                // console.log("password does not match")
                 return Promise().reject();
-                // throw new Error("Invalid password")
-                // console.log("password doesnt match")
-                // reject("Password doesnt match");
             }
         })
-        // });
 };
 
 
 
-userSchema.methods.getToken = function (cb) {
-    mongoose.model('User', userSchema).findById(this._id)
-        .select("+token").exec(function (err, user) {
-            if (err || !user.token) {
-                cb(null);
-            } else {
-                cb(jwt.sign(user.token, jwt_secret));
-            }
-        });
-};
+/**
+ *  Returns a promise with the found user Token
+ *  @return {Promise}
+ */
 
+userSchema.methods.getToken = function () {
+    return mongoose.model('User', userSchema).findById(this._id).select("+token").exec()
+        .then(user => {
+            return Promise().resolve(jwt.sign(user.token, jwt_secret))
+        }).catch(err => {
+            return Promise().reject("Not found")
+        })
+}
 
 
 userSchema.statics.getUserByToken = function (token, cb) {
@@ -123,8 +127,11 @@ userSchema.statics.getUserByToken = function (token, cb) {
 
 
 /**
- *   @return Promise
+ *  Returns found user by local.email
+ *  @param {String} email
+ *  @return {Promise}
  */
+
 userSchema.statics.getByEmail = function (email) {
     return mongoose.model('User', userSchema).findOne({
         'local.email': email
@@ -132,22 +139,47 @@ userSchema.statics.getByEmail = function (email) {
 }
 
 
+/**
+ *  Generates and saves a token for the user
+ *  @return {Promise}
+ */
+
+
 userSchema.methods.generateToken = function () {
     this.token = randomString(14);
-    this.save();
-    return this.token;
-
+    return this.save()
+        .then(user => {
+            return Promise.resolve(this.token)
+        });
 }
 
 userSchema.statics.randomString = function (len, cb) {
     cb(randomString(len));
 }
 
-userSchema.statics.verifyToken = function (token, cb) {
+
+/**
+ *  Verifies that the token is correct and returns it
+ *  @param {String} token
+ *  @return {Promise}
+ */
+
+userSchema.statics.verifyToken = function (token) {
     jwt.verify(token, jwt_secret, function (err, decoded) {
-        cb(err, decoded);
+        if (err)
+            return Promise().reject(err);
+        else
+            return Promise().resolve(decoded)
     });
 }
+
+
+
+/**
+ *  Validates and saves a new avatar link
+ *  @param {String} avatarName
+ *  @return {Promise}
+ */
 
 userSchema.methods.setAvatar = function (avatarName) {
     this.avatar = avatarName;

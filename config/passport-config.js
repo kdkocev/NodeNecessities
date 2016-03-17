@@ -40,31 +40,44 @@ module.exports = function (passport) {
 
             // asynchronous
             process.nextTick(function () {
-                User.findOne({
-                    'local.email': email
-                }, function (err, user) {
-                    if (err)
-                        return done(err);
-
-                    if (!user)
-                        return done(null, false);
-
-                    user.validPassword(password, function (is_valid) {
-                        if (!is_valid) {
-                            return done(null, false);
-                        } else {
-                            user.getToken(function (token) {
-                                if (!token) {
-                                    user.token = user.generateToken();
-                                    user.save();
-                                    return done(null, user);
-                                } else {
-                                    return done(null, user);
-                                }
-                            });
+                return User.getByEmail(email)
+                    .then(user => {
+                        if (!user) {
+                            return done(null, false)
                         }
-                    });
-                });
+                        return user.validPassword(password)
+                            .then(() => {
+                                throw new Error("Complete this please")
+                                // user.getToken()
+                            }).catch(() => {
+                                return done(null, false)
+                            })
+                    }).catch(err => done(err))
+                    // User.findOne({
+                    //     'local.email': email
+                    // }, function (err, user) {
+                    //     if (err)
+                    //         return done(err);
+
+                //     if (!user)
+                //         return done(null, false);
+
+                //     user.validPassword(password, function (is_valid) {
+                //         if (!is_valid) {
+                //             return done(null, false);
+                //         } else {
+                //             user.getToken(function (token) {
+                //                 if (!token) {
+                //                     user.token = user.generateToken();
+                //                     user.save();
+                //                     return done(null, user);
+                //                 } else {
+                //                     return done(null, user);
+                //                 }
+                //             });
+                //         }
+                //     });
+                // });
             });
 
         }));

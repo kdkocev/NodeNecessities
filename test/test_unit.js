@@ -206,7 +206,21 @@ describe("Unit tests", () => {
 				}).catch(throwError)
 		})
 
-		it("should have the right token")
+		it("should generate token", done => {
+			let user = new User({
+				local: {
+					email: 'indiana@jones.com'
+				}
+			})
+			user.save()
+				.then(user => {
+					user.generateToken()
+						.then(token => {
+							assert.equal(token.length > 0, true)
+							done()
+						});
+				});
+		})
 
 		it("should be able to save remember_me")
 	});
