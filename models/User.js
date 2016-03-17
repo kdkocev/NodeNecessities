@@ -10,7 +10,6 @@ var userSchema = mongoose.Schema({
     local: {
         name: {
             type: String,
-            unique: true
         },
         email: {
             type: String,
@@ -45,6 +44,26 @@ var userSchema = mongoose.Schema({
 })
 
 
+userSchema.pre('save', function (next) {
+    var self = this;
+    mongoose.model('User', userSchema).findById(this._id)
+        .select("+local.password").exec(function (err, user) {
+            if (err) next(err);
+            if (!user) {
+                // console.log("generating new password");
+                self.local.password = self.generateHash(self.local.password);
+                next();
+            } else {
+                // console.log("the user saved is not new")
+                if (user.local.password === self.local.password) {
+                    next();
+                } else {
+                    self.local.password = self.generateHash(self.local.password);
+                    next();
+                }
+            }
+        });
+});
 
 userSchema.methods.generateHash = function (password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
@@ -53,29 +72,37 @@ userSchema.methods.generateHash = function (password) {
 
 
 userSchema.methods.validPassword = function (password, cb) {
-    mongoose.model('User', userSchema).findOne({
-        "local.email": this.local.email
-    }).select("+local.password").exec(function (err, user) {
-        if (err || !user.local.password) {
-            cb(null);
-        } else {
-            cb(bcrypt.compareSync(password, user.local.password));
-        }
-    });
+    var self = this;
+    // return new Promise((resolve, reject) => {
+    return mongoose.model('User', userSchema).findById(self._id)
+        .select("+local.password").exec()
+        .then(user => {
+            if (bcrypt.compareSync(password, user.local.password)) {
+                // console.log("password match")
+                return Promise().resolve();
+                // resolve();
+            } else {
+                // console.log("password does not match")
+                return Promise().reject();
+                // throw new Error("Invalid password")
+                // console.log("password doesnt match")
+                // reject("Password doesnt match");
+            }
+        })
+        // });
 };
 
 
 
 userSchema.methods.getToken = function (cb) {
-    mongoose.model('User', userSchema).findOne({
-        "local.email": this.local.email
-    }).select("+token").exec(function (err, user) {
-        if (err || !user.token) {
-            cb(null);
-        } else {
-            cb(jwt.sign(user.token, jwt_secret));
-        }
-    });
+    mongoose.model('User', userSchema).findById(this._id)
+        .select("+token").exec(function (err, user) {
+            if (err || !user.token) {
+                cb(null);
+            } else {
+                cb(jwt.sign(user.token, jwt_secret));
+            }
+        });
 };
 
 
@@ -94,6 +121,15 @@ userSchema.statics.getUserByToken = function (token, cb) {
     });
 };
 
+
+/**
+ *   @return Promise
+ */
+userSchema.statics.getByEmail = function (email) {
+    return mongoose.model('User', userSchema).findOne({
+        'local.email': email
+    }).exec();
+}
 
 
 userSchema.methods.generateToken = function () {
@@ -115,9 +151,11 @@ userSchema.statics.verifyToken = function (token, cb) {
 
 userSchema.methods.setAvatar = function (avatarName) {
     this.avatar = avatarName;
-    this.save();
+    return this.save();
 }
 
+
+// TODO: use validate instead
 userSchema.methods.setName = function (name, cb) {
     if (typeof name == 'string' && name.length > 3) {
         this.local.name = name;

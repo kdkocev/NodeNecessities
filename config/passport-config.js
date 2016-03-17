@@ -103,7 +103,8 @@ module.exports = function (passport) {
 
                             newUser.local.name = req.body.name;
                             newUser.local.email = email;
-                            newUser.local.password = newUser.generateHash(password);
+                            // Deprecate due to pre save middleware
+                            // newUser.local.password = newUser.generateHash(password);
                             newUser.generateToken();
                             newUser.save(function (err) {
                                 if (err)

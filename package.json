@@ -15,7 +15,7 @@
     "express-session": "^1.12.1",
     "jade": "~1.11.0",
     "jsonwebtoken": "^5.4.1",
-    "mongoose": "~4.2.3",
+    "mongoose": "^4.4.7",
     "morgan": "~1.6.1",
     "multer": "^1.1.0",
     "passport": "~0.3.0",
