@@ -222,6 +222,44 @@ describe("Unit tests", () => {
 				});
 		})
 
+		it("should not return token with find query", done => {
+			User.getByEmail("indiana@jones.com")
+				.then(user => {
+					assert.equal(typeof user.token, "undefined");
+					done();
+				}).catch(throwError);
+		});
+
+		it("should encrypt token using jwt", done => {
+			User.getByEmail('indiana@jones.com')
+				.then(user => {
+					user.getToken()
+						.then(token => {
+							// console.log(token)
+							done()
+						})
+						.catch(err => {
+							done(err)
+						})
+				})
+				.catch(throwError)
+		})
+
+		it("should verify token", done => {
+			User.getByEmail('indiana@jones.com')
+				.then(user => {
+					user.getToken()
+						.then(token => {
+							User.verifyToken(token)
+								.then((token) => {
+									console.log(token)
+									done();
+								}).catch(throwError);
+
+						});
+				}).catch(throwError)
+		})
+
 		it("should be able to save remember_me")
 	});
 

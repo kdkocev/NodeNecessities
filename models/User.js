@@ -97,16 +97,20 @@ userSchema.methods.validPassword = function (password) {
 
 
 /**
- *  Returns a promise with the found user Token
+ *  Returns a promise with the SIGNED user Token
  *  @return {Promise}
  */
 
 userSchema.methods.getToken = function () {
     return mongoose.model('User', userSchema).findById(this._id).select("+token").exec()
         .then(user => {
-            return Promise().resolve(jwt.sign(user.token, jwt_secret))
+            return new Promise((resolve, reject) => {
+                resolve(jwt.sign(user.token, jwt_secret))
+            })
         }).catch(err => {
-            return Promise().reject("Not found")
+            return new Promise((resolve, reject) => {
+                reject("Not found, error" + err.toString())
+            })
         })
 }
 
@@ -165,11 +169,13 @@ userSchema.statics.randomString = function (len, cb) {
  */
 
 userSchema.statics.verifyToken = function (token) {
-    jwt.verify(token, jwt_secret, function (err, decoded) {
-        if (err)
-            return Promise().reject(err);
-        else
-            return Promise().resolve(decoded)
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, jwt_secret, function (err, decoded) {
+            if (err)
+                return reject(err);
+            else
+                return resolve(decoded)
+        });
     });
 }
 
