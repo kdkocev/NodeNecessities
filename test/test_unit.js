@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('../models/User.js');
+var User = require('../models/User');
 
 var assert = require('assert');
 var should = require('should');
